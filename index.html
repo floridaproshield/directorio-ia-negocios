@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Herramientas de IA para negocios</title>
+<meta name="description" content="Directorio de herramientas de IA para pequeños negocios, revisado a diario.">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* ==========================================================
+   TOKENS
+   ========================================================== */
+:root{
+  --bg:#000000;
+  --bg-2:#0a0a0a;
+  --bg-3:#141414;
+  --fg:#ece8e1;
+  --fg-2:#b9b4ab;
+  --muted:#7f7a71;
+  --line:rgba(236,232,225,.12);
+  --line-2:rgba(236,232,225,.22);
+  --accent:#d7ff3d;
+  --accent-ink:#000000;
+
+  --f-sans:"Inter Tight",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --gut:16px;
+  --max:1440px;
+  --ease:cubic-bezier(.2,.7,.1,1);
+}
+@media (min-width:768px){:root{--gut:32px}}
+@media (min-width:1200px){:root{--gut:48px}}
+
+/* ==========================================================
+   BASE
+   ========================================================== */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:96px}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font:400 16px/1.5 var(--f-sans);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+/* grano muy ligero (SVG inline, ~400 bytes) */
+body::before{
+  content:"";position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+a{color:inherit}
+button{font:inherit;color:inherit}
+::selection{background:var(--accent);color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* barra de progreso de lectura (CSS puro, sin JS) */
+.progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:60;background:var(--accent);transform-origin:0 50%;transform:scaleX(0)}
+@supports (animation-timeline:scroll()){
+  .progress{animation:grow linear both;animation-timeline:scroll(root)}
+  @keyframes grow{to{transform:scaleX(1)}}
+}
+
+/* ==========================================================
+   TOP BAR
+   ========================================================== */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+.brand{font-weight:600;letter-spacing:-.02em;text-decoration:none;font-size:15px}
+.brand i{font-family:var(--f-serif);font-weight:400;font-size:1.15em}
+.top nav{display:none;gap:28px}
+.top nav a{text-decoration:none;color:var(--fg-2)}
+.top nav a:hover{color:var(--fg)}
+@media (min-width:768px){.top nav{display:flex}}
+.top .ed{color:var(--muted)}
+.top-right{display:flex;align-items:center;gap:14px}
+.lang-switch{display:inline-flex;border:1px solid var(--line-2);border-radius:999px;overflow:hidden}
+.lang-switch button{appearance:none;background:transparent;border:0;cursor:pointer;padding:7px 14px;font:600 12px var(--f-mono);letter-spacing:.08em;color:var(--muted);transition:background .2s,color .2s}
+.lang-switch button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.lang-switch button:not([aria-pressed="true"]):hover{color:var(--fg)}
+
+/* ==========================================================
+   HERO
+   ========================================================== */
+.hero{padding:56px 0 40px;position:relative}
+@media (min-width:768px){.hero{padding:96px 0 64px}}
+.hero-kicker{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--muted);margin-bottom:28px}
+.hero-kicker .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:1px;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.hero h1{
+  margin:0;font-weight:600;letter-spacing:-.055em;line-height:.86;
+  font-size:clamp(3.1rem,14.5vw,12.5rem);
+}
+.hero h1 .ln{display:block;overflow:hidden;padding-bottom:.06em}
+.hero h1 .ln>span{display:inline-block}
+.hero h1 em{font-family:var(--f-serif);font-weight:400;font-style:italic;letter-spacing:-.03em;color:var(--accent)}
+.hero h1 .ln:nth-child(2){padding-left:12vw}
+.js .hero h1 .ln>span{transform:translateY(105%);transition:transform 1.1s var(--ease)}
+.js .ready .hero h1 .ln>span{transform:none}
+.js .ready .hero h1 .ln:nth-child(2)>span{transition-delay:.09s}
+.js .ready .hero h1 .ln:nth-child(3)>span{transition-delay:.18s}
+
+.hero-foot{display:grid;gap:28px;margin-top:40px;align-items:end}
+@media (min-width:900px){.hero-foot{grid-template-columns:1fr auto;margin-top:64px}}
+.lede{margin:0;max-width:34ch;font-size:clamp(1.15rem,2.4vw,1.6rem);line-height:1.3;color:var(--fg-2);letter-spacing:-.01em}
+.lede b{color:var(--fg);font-weight:500}
+.stats{display:flex;gap:28px;margin:0;padding:0;list-style:none}
+.stats li{display:flex;flex-direction:column;gap:4px}
+.stats strong{font-family:var(--f-serif);font-weight:400;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1;letter-spacing:-.02em}
+.stats span{color:var(--muted)}
+
+/* ==========================================================
+   BUSCADOR + FILTROS (sticky)
+   ========================================================== */
+.finder{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.finder-in{display:grid;gap:12px;padding:12px 0}
+@media (min-width:900px){.finder-in{grid-template-columns:minmax(260px,340px) 1fr;align-items:center;gap:24px}}
+.search{position:relative}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search input{
+  width:100%;height:44px;padding:0 44px 0 40px;border-radius:999px;
+  background:var(--bg-2);border:1px solid var(--line);color:var(--fg);
+  font:500 15px var(--f-sans);outline:none;transition:border-color .2s;
+}
+.search input::placeholder{color:var(--muted)}
+.search input:focus{border-color:var(--accent)}
+.search kbd{position:absolute;right:12px;top:50%;transform:translateY(-50%);font:500 11px var(--f-mono);color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:2px 6px}
+@media (hover:none){.search kbd{display:none}}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--gut)*-1);padding:2px var(--gut);-webkit-mask-image:linear-gradient(90deg,transparent,#000 var(--gut),#000 calc(100% - 40px),transparent)}
+.chips::-webkit-scrollbar{display:none}
+@media (min-width:900px){.chips{flex-wrap:wrap;overflow:visible;margin:0;padding:0;-webkit-mask-image:none}}
+.chip{
+  flex:none;height:32px;padding:0 13px;border-radius:999px;cursor:pointer;
+  background:transparent;border:1px solid var(--line-2);color:var(--fg-2);
+  font:500 13px var(--f-sans);white-space:nowrap;transition:background .2s,color .2s,border-color .2s;
+}
+.chip:hover{border-color:var(--fg);color:var(--fg)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip sup{font:500 9px var(--f-mono);opacity:.6;margin-left:3px}
+
+/* ==========================================================
+   DIRECTORIO — maquetación tipo revista
+   ========================================================== */
+.dir-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:64px 0 32px}
+.sec-title{margin:0;font-weight:500;font-size:clamp(1.6rem,4vw,2.6rem);letter-spacing:-.03em;line-height:1}
+.sec-title em{font-family:var(--f-serif);font-weight:400}
+.count{color:var(--muted)}
+
+.dir{display:grid;grid-template-columns:minmax(0,1fr);gap:0;border-top:1px solid var(--line)}
+
+.e{position:relative;padding:44px 0 48px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:18px;min-width:0}
+.e[hidden]{display:none}
+.e-top{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted)}
+.e-idx{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em}
+.e-cat{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.e-name{margin:0;font-weight:500;letter-spacing:-.03em;line-height:1.02;font-size:clamp(1.9rem,5.2vw,2.5rem)}
+.e-desc{margin:0;color:var(--fg-2);max-width:52ch;line-height:1.65}
+.e-meta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;margin-top:auto;padding-top:14px}
+.e-price{flex:1 1 220px;min-width:0;line-height:1.55}
+.e-link{flex:none}
+.e-price{font-family:var(--f-mono);font-size:12px;letter-spacing:.02em}
+.e-price .free{color:var(--accent)}
+.e-link{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:500;font-size:14px;padding:8px 0;position:relative}
+.e-link::after{content:"";position:absolute;left:0;right:22px;bottom:4px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:0 50%;transition:transform .35s var(--ease)}
+.e-link:hover::after{transform:scaleX(1)}
+.e-link svg{transition:transform .35s var(--ease)}
+.e-link:hover svg{transform:translate(3px,-3px)}
+
+/* --- 1. DESTACADA (portada) — lista a ancho completo, la más grande --- */
+.v-feature{padding:52px 0 56px;gap:24px}
+@media (min-width:900px){.v-feature{padding:72px 0 80px}}
+.v-feature .badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);padding:5px 10px;border-radius:999px;font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.v-feature .e-name{font-size:clamp(3.4rem,13vw,10rem);letter-spacing:-.06em;line-height:.88}
+.v-feature .e-name em{font-family:var(--f-serif);font-weight:400;font-style:italic;letter-spacing:-.03em}
+.v-feature .e-desc{font-size:clamp(1.05rem,1.8vw,1.3rem);line-height:1.5;color:var(--fg)}
+.v-feature .e-side{display:flex;flex-direction:column;gap:20px}
+.v-feature .e-meta{border-top:1px solid var(--line);padding-top:16px}
+.v-feature .e-link{background:var(--fg);color:var(--bg);padding:12px 18px;border-radius:999px}
+.v-feature .e-link::after{display:none}
+
+/* --- 2. GRANDE — lista a ancho completo, número gigante como acento --- */
+.v-large{padding:48px 0 52px}
+@media (min-width:900px){.v-large{padding:56px 0 60px}}
+.v-large .big-n{font-family:var(--f-serif);font-size:clamp(4.2rem,11vw,7rem);line-height:.8;color:transparent;-webkit-text-stroke:1px var(--line-2);letter-spacing:-.04em;margin:4px 0 4px;will-change:transform}
+.v-large .e-name{font-size:clamp(2.15rem,6vw,3.6rem)}
+.v-large .e-desc{font-size:1.05rem}
+
+/* --- 3. FILA — lista a ancho completo --- */
+.v-row{padding:44px 0 48px;gap:16px}
+.v-row .e-name{font-size:clamp(1.95rem,5.4vw,2.6rem);letter-spacing:-.025em}
+.v-row .e-desc{font-size:1rem}
+.v-row .e-meta{padding-top:6px}
+@media (min-width:900px){.v-row:hover .e-name{color:var(--accent)}}
+
+/* --- 4. COMPACTA — ahora también lista a ancho completo --- */
+.v-compact{padding:44px 0 48px;gap:16px}
+.v-compact .e-name{font-size:clamp(1.95rem,5.4vw,2.6rem);letter-spacing:-.025em}
+.v-compact .e-desc{font-size:1rem}
+.v-compact .e-meta{padding-top:6px}
+
+/* --- 5. CITA — lista a ancho completo con frase en serif --- */
+.v-quote{padding:52px 0 56px;gap:22px}
+@media (min-width:900px){.v-quote{padding:72px 0 76px}}
+.v-quote blockquote{margin:0;font-family:var(--f-serif);font-size:clamp(1.85rem,5vw,3.6rem);line-height:1.05;letter-spacing:-.02em}
+.v-quote blockquote::before{content:"“";color:var(--accent)}
+.v-quote blockquote::after{content:"”";color:var(--accent)}
+.v-quote .e-name{font-size:clamp(1.95rem,5.4vw,2.6rem)}
+.v-quote .e-body{display:flex;flex-direction:column;gap:18px}
+
+/* --- 6. MEDIA — lista a ancho completo --- */
+.v-mid{padding:44px 0 48px;gap:16px}
+.v-mid .e-name{font-size:clamp(2rem,5.6vw,2.8rem)}
+.v-mid .tag{align-self:flex-start;border:1px solid var(--line-2);border-radius:999px;padding:3px 9px;font:500 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2)}
+
+.empty{display:none;padding:64px 0;text-align:center;color:var(--fg-2)}
+.empty.on{display:block}
+.empty p{font-family:var(--f-serif);font-size:2rem;margin:0 0 12px;color:var(--fg)}
+.empty button{background:none;border:1px solid var(--line-2);border-radius:999px;padding:8px 16px;cursor:pointer}
+
+/* ==========================================================
+   QUÉ HA HECHO EL AGENTE
+   ========================================================== */
+.agent{margin-top:96px;padding:64px 0;background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+@media (min-width:900px){.agent{margin-top:140px;padding:96px 0}}
+.agent-grid{display:grid;gap:40px}
+@media (min-width:900px){.agent-grid{grid-template-columns:4fr 8fr;gap:48px}}
+.agent-intro .sec-title{margin-bottom:16px}
+.agent-intro p{color:var(--fg-2);margin:0 0 24px;max-width:36ch}
+.agent-status{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line-2);border-radius:999px;padding:8px 14px;color:var(--fg-2)}
+.agent-status .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2.4s ease-in-out infinite}
+.log{list-style:none;margin:0;padding:0;font-family:var(--f-mono);font-size:13px}
+.log-day{display:block;padding:20px 0 10px;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.log-day:first-child{padding-top:0}
+.log li.item{display:grid;grid-template-columns:48px 1fr;gap:4px 12px;padding:14px 0;border-bottom:1px dashed var(--line)}
+@media (min-width:600px){.log li.item{grid-template-columns:56px 110px 1fr}}
+.log time{color:var(--muted)}
+.log .act{justify-self:start;font-size:10px;letter-spacing:.08em;padding:3px 8px;border-radius:4px;border:1px solid var(--line-2);color:var(--fg-2);height:fit-content}
+.log .act.add{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.log .act.del{border-style:dashed;color:var(--muted)}
+.log .txt{grid-column:1/-1;color:var(--fg);font-family:var(--f-sans);font-size:15px;line-height:1.45}
+@media (min-width:600px){.log .txt{grid-column:auto}}
+.log .txt b{font-weight:500}
+.log .txt s{color:var(--muted)}
+.log-more{margin-top:20px;background:none;border:0;padding:0;color:var(--fg-2);font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+
+/* ==========================================================
+   INVITACIÓN
+   ========================================================== */
+.invite{padding:96px 0 72px}
+@media (min-width:900px){.invite{padding:160px 0 112px}}
+.invite .mono{color:var(--muted);display:block;margin-bottom:24px}
+.invite h2{margin:0 0 40px;font-weight:500;font-size:clamp(2rem,6vw,4.6rem);letter-spacing:-.04em;line-height:.95;max-width:16ch}
+.invite h2 em{font-family:var(--f-serif);font-weight:400}
+.code-box{border:1px solid var(--line-2);border-radius:20px;padding:24px;display:grid;gap:24px;position:relative;overflow:hidden}
+@media (min-width:900px){.code-box{grid-template-columns:1fr auto;align-items:center;padding:40px 48px;border-radius:28px}}
+.code-label{color:var(--muted);margin-bottom:6px}
+.code{font-family:var(--f-mono);font-weight:500;font-size:clamp(2.6rem,13vw,8rem);letter-spacing:.04em;line-height:1;color:var(--accent);user-select:all;word-break:break-all}
+.code-actions{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 24px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer;transition:transform .25s var(--ease),background .2s,color .2s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:var(--accent-ink);border:0}
+.btn-primary.done{background:var(--fg)}
+.btn-ghost{background:transparent;color:var(--fg);border:1px solid var(--line-2)}
+.btn-ghost:hover{border-color:var(--fg)}
+@media (max-width:899px){.code-actions .btn{flex:1 1 100%}}
+.invite-note{margin-top:16px;color:var(--muted);font-size:14px}
+
+/* ==========================================================
+   FOOTER
+   ========================================================== */
+footer{border-top:1px solid var(--line);padding:28px 0 calc(28px + env(safe-area-inset-bottom));color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+
+/* ==========================================================
+   MOVIMIENTO (sutil, sin librerías)
+   ========================================================== */
+.js .rv.in{animation:rise .8s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+/* número gigante: deriva vertical ligada al scroll, sólo donde el navegador lo soporta */
+@supports (animation-timeline:view()){
+  .v-large .big-n{animation:drift linear both;animation-timeline:view();animation-range:entry 0% exit 100%}
+  @keyframes drift{from{transform:translateY(24px)}to{transform:translateY(-24px)}}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv.in{animation:none}
+  .js .hero h1 .ln>span{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+
+<!-- ======================= CABECERA ======================= -->
+<header class="wrap">
+  <div class="top">
+    <a class="brand" href="#" id="brand">Directorio<i>/IA</i></a>
+    <nav class="mono" id="main-nav" aria-label="Secciones">
+      <a href="#directorio" id="nav-dir">Directorio</a>
+      <a href="#agente" id="nav-log">Registro</a>
+      <a href="#invitacion" id="nav-invite">Invitación</a>
+    </nav>
+    <div class="top-right">
+      <div class="lang-switch" role="group" aria-label="Idioma / Language">
+        <button type="button" id="lang-es" aria-pressed="true">ES</button>
+        <button type="button" id="lang-en" aria-pressed="false">EN</button>
+      </div>
+      <span class="mono ed">Ed. 14·11·26</span>
+    </div>
+  </div>
+
+  <section class="hero" aria-labelledby="titulo">
+    <div class="hero-kicker mono">
+      <span><span class="dot"></span><span id="kick-1">Actualizado hoy</span></span>
+      <span id="kick-2">Para pequeños negocios</span>
+      <span id="kick-3">Revisado por un agente</span>
+    </div>
+    <h1 id="titulo">
+      <span class="ln"><span>Herramientas</span></span>
+      <span class="ln"><span>de IA <em>para</em></span></span>
+      <span class="ln"><span><em>negocios</em></span></span>
+    </h1>
+    <div class="hero-foot">
+      <p class="lede" id="lede">Las herramientas que de verdad <b>ahorran horas</b> a un negocio pequeño. Probadas, con precio claro y sin humo.</p>
+      <ul class="stats mono">
+        <li><strong id="stat-total">24</strong><span id="stat-lbl-tools">Herramientas</span></li>
+        <li><strong>14</strong><span id="stat-lbl-cats">Categorías</span></li>
+        <li><strong>3</strong><span id="stat-lbl-changes">Cambios hoy</span></li>
+      </ul>
+    </div>
+  </section>
+</header>
+
+<!-- ======================= BUSCADOR + FILTROS ======================= -->
+<div class="finder" role="search">
+  <div class="wrap finder-in">
+    <label class="search">
+      <span class="sr" id="search-sr">Buscar herramientas</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Buscar por nombre, uso o categoría" autocomplete="off" enterkeyhint="search">
+      <kbd>/</kbd>
+    </label>
+    <div class="chips" id="chips" aria-label="Filtrar por categoría"></div>
+  </div>
+</div>
+
+<main>
+  <!-- ======================= DIRECTORIO ======================= -->
+  <section id="directorio" class="wrap" aria-labelledby="dir-title">
+    <div class="dir-head">
+      <h2 class="sec-title" id="dir-title">El <em>índice</em></h2>
+      <span class="count mono" id="count" aria-live="polite">24 resultados</span>
+    </div>
+    <div class="dir" id="dir"></div>
+    <div class="empty" id="empty">
+      <p id="empty-title">Nada por aquí.</p>
+      <span id="empty-text">Prueba con otra palabra o </span><button type="button" id="reset">quita los filtros</button>
+    </div>
+  </section>
+
+  <!-- ======================= REGISTRO DEL AGENTE ======================= -->
+  <section id="agente" class="agent" aria-labelledby="agent-title">
+    <div class="wrap agent-grid">
+      <div class="agent-intro rv">
+        <span class="mono" id="agent-kicker" style="color:var(--muted)">Registro diario</span>
+        <h2 class="sec-title" id="agent-title" style="margin-top:12px">Qué ha hecho <em>el agente</em></h2>
+        <p id="agent-desc">Cada día un agente revisa precios, enlaces y novedades. Esto es lo que ha cambiado.</p>
+        <span class="agent-status mono"><span class="dot"></span><span id="agent-status-text">Última revisión hoy · 07:43</span></span>
+      </div>
+      <div>
+        <ol class="log rv" id="log"></ol>
+        <button class="log-more" type="button" id="log-more">Ver días anteriores</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= INVITACIÓN ======================= -->
+  <section id="invitacion" class="invite wrap" aria-labelledby="inv-title">
+    <span class="mono" id="invite-kicker">Invitación</span>
+    <h2 id="inv-title" class="rv">Únete con este <em>código</em> de invitación</h2>
+    <div class="code-box rv">
+      <div>
+        <div class="code-label mono" id="code-label">Tu código</div>
+        <div class="code" id="code">QY02JG</div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" type="button" id="copy" aria-describedby="copy-status">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          <span id="copy-label">Copiar código</span>
+        </button>
+        <a class="btn btn-ghost" href="https://muse.ai/join" target="_blank" rel="noopener">
+          muse.ai/join
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </a>
+      </div>
+    </div>
+    <p class="invite-note" id="invite-note">Canjea el código en Ajustes dentro de las 48 horas de unirte: los dos recibimos <b>1 billón de tokens</b> de Muse.</p>
+    <span class="sr" id="copy-status" aria-live="polite"></span>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap mono">
+    <span id="foot-1">Directorio/IA — 2026</span>
+    <span id="foot-2">Revisado cada mañana por un agente</span>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================
+   DATOS DE MUESTRA — sustituir por el contenido real.
+   Cada herramienta: name, desc, price, url, cat (una de CATS).
+   La lista de abajo repite 3 herramientas de ejemplo para
+   rellenar las 24 posiciones y enseñar todos los formatos.
+   ========================================================== */
+const CATS = ["Asistentes", "Investigación", "Automatización", "Productividad", "Diseño", "Marketing", "Ventas y CRM", "Atención al cliente", "Reuniones", "Páginas web", "Reservas y citas", "Vídeo", "Voz y audio", "Audio"];
+
+const TOOLS = [{"name": "ChatGPT", "desc": "El de siempre, y sigue siendo el más completo. Piensa en un negocio de servicios cualquiera: presupuestos, correos a clientes, respuestas a las reseñas de Google.", "price": "gratis con límites · Go $8/mes", "url": "https://chatgpt.com/pricing", "cat": "Asistentes", "layout": "feature"}, {"name": "Claude", "desc": "Te llega un contrato de 40 páginas — o una póliza, que es peor — y necesitas saber qué dice de verdad antes de firmar: plazos, exclusiones, penalizaciones. Para eso, hoy, Claude es el que yo abro.", "price": "gratis · Pro $17/mes con pago anual ($20 mensual)", "url": "https://claude.ai/", "cat": "Asistentes", "layout": "large"}, {"name": "Microsoft 365 Copilot", "desc": "Si tu oficina ya vive en Outlook y Teams, este es el camino corto: resume un hilo de 30 correos en tres líneas, convierte la reunión de Teams en acta con tareas asignadas y arma la primera versión de una presentación desde un Word.", "price": "Sin precio fijo suelto · Standard $23,50 · Premium $32 por usuario/mes", "url": "https://www.microsoft.com/en-us/copilot/pricing/business", "cat": "Asistentes", "layout": "large"}, {"name": "Perplexity", "desc": "Antes de cotizar un trabajo o lanzar un servicio nuevo, la pregunta es casi siempre la misma: ¿cuánto cobra la competencia por esto en mi ciudad? ¿qué exige la normativa nueva? Perplexity responde con datos actuales y las fuentes enlazadas…", "price": "gratis · Pro $20/mes ($17/mes con pago anual)", "url": "https://www.perplexity.ai/", "cat": "Investigación", "layout": "row"}, {"name": "Zapier", "desc": "El ejemplo que lo explica todo: entra un lead por el formulario de tu web y, sin que toques nada, se crea el contacto en tu CRM, entra en tu lista de correo y el vendedor recibe el aviso. En menos de un minuto.", "price": "gratis, 100 tareas/mes · Professional desde $19,99/mes", "url": "https://zapier.com/pricing", "cat": "Automatización", "layout": "row"}, {"name": "Make", "desc": "Hace lo mismo que Zapier — generar la factura al cerrar un trabajo, guardarla en Drive, avisar al cliente, registrar el cobro — pero en un editor visual donde ves exactamente qué pasa con cada dato en cada paso.", "price": "gratis, 1.000 créditos/mes · Core $12/mes (10.000 créditos)", "url": "https://www.make.com/en/pricing", "cat": "Automatización", "layout": "row"}, {"name": "Notion AI", "desc": "Esto solo tiene sentido si tu equipo ya vive en Notion. Si es así, es cómodo de verdad: las actas de reunión se escriben solas y la búsqueda responde preguntas del tipo «¿qué acordamos con este cliente en marzo?» leyendo tus propios…", "price": "IA completa con Business $20/miembro/mes anual", "url": "https://www.notion.com/pricing", "cat": "Productividad", "layout": "row"}, {"name": "Canva · Magic Studio", "desc": "El restaurante, la tienda o el taller que se hace su propio marketing: un post de Instagram se convierte en historia, flyer y menú con un par de clics, le quitas el fondo a la foto del producto y la primera versión de cualquier pieza sale…", "price": "Gratis ~50 créditos IA/mes · Pro ~$15/mes", "url": "https://www.canva.com", "cat": "Diseño", "layout": "row"}, {"name": "Jasper", "desc": "Seré directo: para casi todo el mundo, Jasper sobra. Cuesta $59 al mes por hacer, en gran parte, lo que un asistente de $20 ya hace.", "price": "Sin plan gratis · Pro $59/asiento/mes anual", "url": "https://www.jasper.ai/pricing", "cat": "Marketing", "layout": "large w7"}, {"name": "HubSpot · Breeze / Agent Hub", "desc": "Lo interesante aquí no es la IA, es cómo la cobra. El agente de clientes responde las preguntas frecuentes usando tus propios datos y solo cobra cuando la conversación queda resuelta — $0,50, no por intento.", "price": "CRM gratis · puestos Starter desde $7/mes con pago anual", "url": "https://www.hubspot.com/artificial-intelligence", "cat": "Ventas y CRM", "layout": "large w5"}, {"name": "Intercom Fin", "desc": "Una tienda online, un servicio, las mismas veinte preguntas cada semana: «¿dónde está mi pedido?», «¿cuánto cuesta?», «¿cómo cambio mi cita?». Fin las responde al instante en el chat, el correo y WhatsApp.", "price": "Fin $0,99 por resolución · plataforma desde $29/asiento/mes", "url": "https://www.intercom.com/learning-center/intercom-pricing", "cat": "Atención al cliente", "layout": "compact"}, {"name": "Fireflies", "desc": "Entra solo a la llamada de Zoom, Meet o Teams, transcribe en español — entiende más de 100 idiomas — y te deja el resumen con los acuerdos y las tareas.", "price": "gratis con resúmenes limitados · Pro $10 por asiento/mes con pago anual ($18 mensual)", "url": "https://fireflies.ai/pricing", "cat": "Reuniones", "layout": "compact"}, {"name": "Durable", "desc": "Genera la web de un negocio en unos 30 segundos a partir de unas preguntas, y trae CRM, reservas, facturación y respuestas a clientes en el mismo panel.", "price": "gratis $0 (solo vista previa, CRM hasta 10 clientes) · Launch $25/mes ($22 con pago anual)", "url": "https://durable.com", "cat": "Páginas web", "layout": "compact"}, {"name": "Tidio", "desc": "Chat en vivo con un agente de IA, Lyro, que contesta en tu web, WhatsApp, Instagram y Messenger, con bandeja compartida y automatizaciones.", "price": "Gratis 50 conversaciones/mes · Starter $29/mes", "url": "https://tidio.com", "cat": "Atención al cliente", "layout": "compact"}, {"name": "Gamma", "desc": "Pegas un texto y en un minuto tienes una presentación decente, exportable a PowerPoint o PDF. Para un autónomo o una consultora pequeña que tiene que entregar una propuesta con buena pinta sin pasarse la tarde peleando con PowerPoint, es…", "price": "Gratis 400 créditos únicos · Plus $9/mes anual", "url": "https://gamma.app", "cat": "Diseño", "quote": "El plan gratis es una prueba con fecha de caducidad: los 400 créditos no se renuevan.", "layout": "quote"}, {"name": "Calendly", "desc": "La novedad de esta revisión, y entra porque resuelve algo concreto: el ir y venir de correos para cuadrar una cita. Mandas tu enlace, el cliente reserva solo, los recordatorios salen automáticos y la cita cae en tu calendario sin tocar…", "price": "Gratis 1 tipo de evento · Standard $10/asiento/mes anual", "url": "https://calendly.com/pricing", "cat": "Reservas y citas", "layout": "row"}, {"name": "Otter.ai", "desc": "Pariente cercano de Fireflies: entra solo a Zoom, Meet o Teams, transcribe la conversación — también en español — y deja un resumen con tareas.", "price": "Gratis 300 min/mes · Pro $8,33/mes anual", "url": "https://otter.ai/pricing", "cat": "Reuniones", "layout": "row"}, {"name": "Gemini en Google Workspace", "desc": "Estaba pendiente desde la primera versión de la lista y entra hoy, cerrando el grupo de los cuatro asistentes grandes. Si tu negocio ya vive en Gmail y Google Docs, Gemini resume hilos de correo, redacta respuestas y toma notas en Meet sin…", "price": "Starter $7/usuario/mes anual · Standard $14", "url": "https://workspace.google.com/pricing", "cat": "Asistentes", "layout": "row"}, {"name": "Loom", "desc": "Cuenta las veces que explicas lo mismo en una semana. Cómo se usa esto, qué cubre aquello, por qué el presupuesto dice eso. Veinte, fácil.", "price": "Gratis 25 vídeos de 5 min · Business $18/mes", "url": "https://www.loom.com/pricing", "cat": "Vídeo", "layout": "row"}, {"name": "Descript", "desc": "Aquí manda el contador, no el precio de portada. Descript guarda dos cifras que deciden si te sirve o te deja tirado a mitad de mes: las horas de material y los créditos de IA.", "price": "gratis $0 · Hobbyist $16/mes con pago anual ($24 mensual)", "url": "https://www.descript.com/pricing", "cat": "Vídeo", "layout": "mid"}, {"name": "ElevenLabs", "desc": "Hay negocios donde la voz del dueño grabada con el móvil, con la calle de fondo, resta más de lo que suma. Tres sitios donde eso se nota: el saludo del contestador, un anuncio para Instagram y el audio de un vídeo de formación que tu…", "price": "gratis $0 (10.000 créditos/mes) · Starter $5/mes con pago anual ($6 mensual)", "url": "https://elevenlabs.io/pricing", "cat": "Voz y audio", "layout": "mid"}, {"name": "Fathom", "desc": "Si ya leíste la ficha de Otter, esta se entiende en una frase: Fathom hace lo mismo — entra a Zoom, Meet o Teams y te deja el acta escrita sin que tomes una sola nota — pero su plan gratis no tiene el techo que limita al de Otter.", "price": "gratis $0 para siempre · Premium $20/mes ($16 con pago anual)", "url": "https://fathom.ai/pricing", "cat": "Reuniones", "layout": "mid"}, {"name": "HeyGen", "desc": "Vídeos con presentador sin presentador: escribes el guion, eliges un avatar y sale el vídeo hablando a cámara. Para un negocio, los usos están claros: un anuncio, explicar un servicio en la web, formar a un empleado nuevo.", "price": "Gratis 3 vídeos/mes · Creator $29/mes", "url": "https://www.heygen.com/pricing", "cat": "Vídeo", "layout": "row"}, {"name": "Krisp", "desc": "Estás en el coche, entre dos trabajos, y entra la llamada del cliente que llevas tres días esperando. Al fondo: el tráfico, el aire acondicionado, la obra de la esquina.", "price": "prueba gratis de 7 días, sin tarjeta · Core desde $8/mes con pago anual ($16 mensual)", "url": "https://krisp.ai/pricing", "cat": "Audio", "layout": "row"}];
+
+/* ===== Traducciones al inglés (mismos datos, mismo orden) ===== */
+const CAT_EN = {"Asistentes":"Assistants","Investigación":"Research","Automatización":"Automation","Productividad":"Productivity","Diseño":"Design","Marketing":"Marketing","Ventas y CRM":"Sales & CRM","Atención al cliente":"Customer support","Reuniones":"Meetings","Páginas web":"Websites","Reservas y citas":"Bookings & appointments","Vídeo":"Video","Voz y audio":"Voice & audio","Audio":"Audio"};
+const TOOLS_EN = [
+{desc:"The usual one, and still the most complete. Think of any service business: quotes, emails to clients, replies to Google reviews.",price:"free with limits · Go $8/month"},
+{desc:"A 40-page contract lands on your desk — or an insurance policy, which is worse — and you need to know what it really says before signing: deadlines, exclusions, penalties. For that, today, Claude is the one I open.",price:"free · Pro $17/month billed annually ($20 monthly)"},
+{desc:"If your office already lives in Outlook and Teams, this is the shortcut: it sums up a 30-email thread in three lines, turns the Teams meeting into minutes with assigned tasks, and drafts the first version of a presentation from a Word doc.",price:"No fixed standalone price · Standard $23.50 · Premium $32 per user/month"},
+{desc:"Before quoting a job or launching a new service, the question is almost always the same: how much do competitors charge for this in my city? What does the new regulation require? Perplexity answers with current data and linked sources…",price:"free · Pro $20/month ($17/month billed annually)"},
+{desc:"The example that explains it all: a lead comes in through your website form and, without you touching anything, the contact is created in your CRM, added to your mailing list, and your salesperson gets notified. In under a minute.",price:"free, 100 tasks/month · Professional from $19.99/month"},
+{desc:"It does the same thing as Zapier — generate the invoice when a job closes, save it to Drive, notify the client, record the payment — but in a visual editor where you see exactly what happens to each piece of data at every step.",price:"free, 1,000 credits/month · Core $12/month (10,000 credits)"},
+{desc:"This only makes sense if your team already lives in Notion. If it does, it's genuinely convenient: meeting notes write themselves and search answers questions like “what did we agree with this client in March?” by reading your own…",price:"Full AI with Business $20/member/month billed annually"},
+{desc:"For the restaurant, shop or workshop doing its own marketing: an Instagram post becomes a story, flyer and menu in a couple of clicks, you remove the background from a product photo, and the first draft of any piece comes out…",price:"Free ~50 AI credits/month · Pro ~$15/month"},
+{desc:"I'll be direct: for almost everyone, Jasper is overkill. It costs $59 a month to do, for the most part, what a $20 assistant already does.",price:"No free plan · Pro $59/seat/month billed annually"},
+{desc:"What's interesting here isn't the AI, it's how it charges for it. The customer agent answers FAQs using your own data and only charges when the conversation is resolved — $0.50, not per attempt.",price:"CRM free · Starter seats from $7/month billed annually"},
+{desc:"An online store, a service business, the same twenty questions every week: “where's my order?”, “how much does it cost?”, “how do I change my appointment?”. Fin answers them instantly in chat, email and WhatsApp.",price:"Fin $0.99 per resolution · platform from $29/seat/month"},
+{desc:"It joins your Zoom, Meet or Teams call on its own, transcribes in Spanish — it understands over 100 languages — and leaves you a summary with the decisions and tasks.",price:"free with limited summaries · Pro $10 per seat/month billed annually ($18 monthly)"},
+{desc:"It generates a business website in about 30 seconds from a few questions, and includes CRM, bookings, invoicing and customer replies in the same dashboard.",price:"free $0 (preview only, CRM up to 10 clients) · Launch $25/month ($22 billed annually)"},
+{desc:"Live chat with an AI agent, Lyro, that replies on your website, WhatsApp, Instagram and Messenger, with a shared inbox and automations.",price:"Free 50 conversations/month · Starter $29/month"},
+{desc:"Paste in some text and in a minute you have a decent presentation, exportable to PowerPoint or PDF. For a freelancer or a small consultancy that needs to deliver a good-looking proposal without spending the afternoon fighting with PowerPoint, it's…",price:"Free 400 one-time credits · Plus $9/month billed annually",quote:"The free plan is a trial with an expiry date: the 400 credits don't renew."},
+{desc:"The newcomer in this review, and it's here because it solves something concrete: the back-and-forth of emails to schedule an appointment. You send your link, the client books on their own, reminders go out automatically, and the appointment lands in your calendar without you touching…",price:"Free 1 event type · Standard $10/seat/month billed annually"},
+{desc:"A close relative of Fireflies: it joins Zoom, Meet or Teams on its own, transcribes the conversation — in Spanish too — and leaves a summary with tasks.",price:"Free 300 min/month · Pro $8.33/month billed annually"},
+{desc:"It had been pending since the first version of the list and joins today, completing the group of the four big assistants. If your business already lives in Gmail and Google Docs, Gemini summarizes email threads, drafts replies, and takes notes in Meet without…",price:"Starter $7/user/month billed annually · Standard $14"},
+{desc:"Count how many times you explain the same thing in a week. How this is used, what that covers, why the quote says that. Twenty, easily.",price:"Free 25 videos of 5 min · Business $18/month"},
+{desc:"Here the counter rules, not the headline price. Descript tracks two numbers that decide whether it works for you or leaves you stranded mid-month: the hours of material and the AI credits.",price:"free $0 · Hobbyist $16/month billed annually ($24 monthly)"},
+{desc:"There are businesses where the owner's voice recorded on a phone, with the street in the background, takes away more than it adds. Three places where it shows: the voicemail greeting, an Instagram ad, and the audio of a training video that your…",price:"free $0 (10,000 credits/month) · Starter $5/month billed annually ($6 monthly)"},
+{desc:"If you've already read the Otter entry, this one takes a single sentence: Fathom does the same thing — it joins Zoom, Meet or Teams and leaves you written minutes without you taking a single note — but its free plan doesn't have the cap that limits Otter's.",price:"free $0 forever · Premium $20/month ($16 billed annually)"},
+{desc:"Videos with a presenter but no presenter: you write the script, pick an avatar, and out comes the video speaking to camera. For a business, the uses are clear: an ad, explaining a service on your website, training a new employee.",price:"Free 3 videos/month · Creator $29/month"},
+{desc:"You're in the car, between two jobs, and the call comes in from the client you've been waiting three days to hear from. In the background: traffic, the air conditioning, construction on the corner.",price:"7-day free trial, no card required · Core from $8/month billed annually ($16 monthly)"}
+];
+const LOG_EN = [{"day":"Today · Nov 14","items":[["07:43","add","Added","<b>Fathom</b>, <b>HeyGen</b> and <b>Krisp</b> join the list. The directory now has 24 tools in 14 categories."],["07:43","upd","Review","9 links checked today, plus the 11 from yesterday. None broken, no prices changed."],["07:43","upd","On hold","<b>Manychat</b> isn't in yet: its free plan changed and sources don't agree."],["07:43","upd","Noted","<b>Krisp</b> no longer has a permanent free plan: just a 7-day trial."]]},{"day":"Yesterday · Nov 13","items":[["07:42","add","Added","<b>Loom</b> and <b>Descript</b> open up video; <b>ElevenLabs</b>, voice and audio. 21 tools, 13 categories."],["07:42","upd","Price","<b>ChatGPT</b> adds the Go plan at $8/month. Plus stays at $20 with no ads; Go may show them."],["07:42","upd","Fixed","In <b>Calendly</b>, Notetaker and Callie become paid add-ons."],["07:42","upd","Review","11 links verified. All load, none broken."]]},{"day":"Nov 12","items":[["08:11","add","Invite","Muse invite block with code <b>QY02JG</b>, copy button and link to muse.ai/join."],["07:44","add","Added","<b>Calendly</b> (bookings and appointments), <b>Otter.ai</b> and <b>Gemini</b> in Google Workspace. 18 tools, 11 categories."],["07:44","upd","Price","<b>Copilot</b>: Microsoft no longer publishes the standalone add-on price. Reference: bundles with Copilot, $23.50 and $32."],["07:44","upd","Review","All 15 links checked, one by one. All load."]]},{"day":"Nov 11","items":[["07:39","add","Added","<b>Durable</b>, <b>Tidio</b> and <b>Gamma</b>. The list grows from 12 to 15 tools and from 9 to 10 topics."],["07:39","upd","Price","<b>Make</b>: the Core plan costs $12/month, not ~$9. Entry corrected."],["07:03","add","First version","The list launches with 12 tools across 9 topics, with verified prices and links."]]}];
+const UI = {
+es:{title:"Herramientas de IA para negocios",meta:"Directorio de herramientas de IA para pequeños negocios, revisado a diario.",brand:'Directorio<i>/IA</i>',navDir:"Directorio",navLog:"Registro",navInvite:"Invitación",navLabel:"Secciones",kick1:"Actualizado hoy",kick2:"Para pequeños negocios",kick3:"Revisado por un agente",hero:'<span class="ln"><span>Herramientas</span></span><span class="ln"><span>de IA <em>para</em></span></span><span class="ln"><span><em>negocios</em></span></span>',lede:'Las herramientas que de verdad <b>ahorran horas</b> a un negocio pequeño. Probadas, con precio claro y sin humo.',statTools:"Herramientas",statCats:"Categorías",statChanges:"Cambios hoy",searchSr:"Buscar herramientas",searchPh:"Buscar por nombre, uso o categoría",chipsLabel:"Filtrar por categoría",all:"Todas",dirTitle:'El <em>índice</em>',result:"resultado",results:"resultados",emptyTitle:"Nada por aquí.",emptyText:"Prueba con otra palabra o ",reset:"quita los filtros",badge:"★ Destacada de la semana",tagNew:"Nueva esta semana",visit:"Visitar",agentKicker:"Registro diario",agentTitle:'Qué ha hecho <em>el agente</em>',agentDesc:"Cada día un agente revisa precios, enlaces y novedades. Esto es lo que ha cambiado.",agentStatus:"Última revisión hoy · 07:43",logMore:"Ver días anteriores",inviteKicker:"Invitación",invTitle:'Únete con este <em>código</em> de invitación',codeLabel:"Tu código",copy:"Copiar código",copied:"¡Copiado!",copyStatus:c=>`Código ${c} copiado`,inviteNote:'Canjea el código en Ajustes dentro de las 48 horas de unirte: los dos recibimos <b>1 billón de tokens</b> de Muse.',foot1:"Directorio/IA — 2026",foot2:"Revisado cada mañana por un agente"},
+en:{title:"AI tools for businesses",meta:"Directory of AI tools for small businesses, reviewed daily.",brand:'Directory<i>/AI</i>',navDir:"Directory",navLog:"Log",navInvite:"Invite",navLabel:"Sections",kick1:"Updated today",kick2:"For small businesses",kick3:"Reviewed by an agent",hero:'<span class="ln"><span>AI tools</span></span><span class="ln"><span><em>for</em></span></span><span class="ln"><span><em>businesses</em></span></span>',lede:'The tools that actually <b>save hours</b> for a small business. Tested, with clear pricing and no hype.',statTools:"Tools",statCats:"Categories",statChanges:"Changes today",searchSr:"Search tools",searchPh:"Search by name, use or category",chipsLabel:"Filter by category",all:"All",dirTitle:'The <em>index</em>',result:"result",results:"results",emptyTitle:"Nothing here.",emptyText:"Try another word or ",reset:"clear the filters",badge:"★ Featured this week",tagNew:"New this week",visit:"Visit",agentKicker:"Daily log",agentTitle:'What <em>the agent</em> has done',agentDesc:"Every day an agent checks prices, links and what's new. This is what has changed.",agentStatus:"Last review today · 07:43",logMore:"See previous days",inviteKicker:"Invitation",invTitle:'Join with this invitation <em>code</em>',codeLabel:"Your code",copy:"Copy code",copied:"Copied!",copyStatus:c=>`Code ${c} copied`,inviteNote:'Redeem the code in Settings within 48 hours of joining: we both get <b>1 billion Muse tokens</b>.',foot1:"Directory/AI — 2026",foot2:"Reviewed every morning by an agent"}
+};
+
+/* Formato de cada una de las 24 posiciones (ritmo de revista).
+   feature = destacada · large = media página · row = listado
+   compact = ficha corta · quote = cita · mid = tercio            */
+const LAYOUT = [
+  "feature",
+  "large","large",
+  "row","row","row","row","row",
+  "large w7","large w5",
+  "compact","compact","compact","compact",
+  "quote",
+  "row","row","row","row",
+  "mid","mid","mid",
+  "row","row"
+];
+
+
+
+/* ==========================================================
+   RENDER
+   ========================================================== */
+const $ = s=>document.querySelector(s);
+const pad = n=>String(n).padStart(2,"0");
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const arrow = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+let lang = "es";
+const U = ()=>UI[lang];
+const catName = c=> lang==="en" ? (CAT_EN[c]||c) : c;
+const price = p=>/^\s*(gratis|free)/i.test(p)?`<span class="free">${esc(p)}</span>`:esc(p);
+let io = null;
+function observeRv(scope){
+  if(!("IntersectionObserver" in window)){ scope.querySelectorAll(".rv").forEach(el=>el.classList.add("in")); return; }
+  if(!io) io = new IntersectionObserver(es=>es.forEach(x=>{ if(x.isIntersecting){ x.target.classList.add("in"); io.unobserve(x.target); } }),{rootMargin:"0px 0px -8% 0px"});
+  scope.querySelectorAll(".rv:not(.in)").forEach(el=>io.observe(el));
+}
+
+function entry(t,i){
+  const en = lang==="en" ? TOOLS_EN[i] : null;
+  const descTxt = en ? en.desc : t.desc;
+  const priceTxt = en ? en.price : t.price;
+  const quoteTxt = en && en.quote ? en.quote : t.quote;
+  const catTxt = catName(t.cat);
+  const n = pad(i+1), v = t.layout.split(" ")[0];
+  const top  = `<div class="e-top"><span class="e-idx">${n}</span><span class="e-cat">${esc(catTxt)}</span></div>`;
+  const meta = `<div class="e-meta"><span class="e-price">${price(priceTxt)}</span><a class="e-link" href="${esc(t.url)}" target="_blank" rel="noopener">${U().visit} ${arrow}<span class="sr"> ${esc(t.name)}</span></a></div>`;
+  const name = `<h3 class="e-name">${esc(t.name)}</h3>`;
+  const desc = `<p class="e-desc">${esc(descTxt)}</p>`;
+  let inner;
+  switch(v){
+    case "feature": {
+      const [a,...b] = t.name.split(" ");
+      inner = `<div class="e-top"><span class="badge">${esc(U().badge)}</span><span class="e-cat">${n} — ${esc(catTxt)}</span></div>
+        <h3 class="e-name">${esc(a)}${b.length?` <em>${esc(b.join(" "))}</em>`:""}</h3>
+        <div class="e-side">${desc}${meta}</div>`; break;
+    }
+    case "large":  inner = `${top}<div class="big-n" aria-hidden="true">${n}</div>${name}${desc}${meta}`; break;
+    case "quote":  inner = `${top}<blockquote>${esc(quoteTxt)}</blockquote><div class="e-body"><div>${name}${desc}</div>${meta}</div>`; break;
+    case "mid":    inner = `${top}<span class="tag">${esc(U().tagNew)}</span>${name}${desc}${meta}`; break;
+    default:       inner = `${top}${name}${desc}${meta}`;
+  }
+  const searchText = (t.name+" "+t.desc+" "+t.cat+" "+(TOOLS_EN[i]?TOOLS_EN[i].desc+" "+(CAT_EN[t.cat]||""):"")).toLowerCase();
+  return `<article class="e v-${t.layout} rv" data-cat="${esc(t.cat)}" data-text="${esc(searchText)}">${inner}</article>`;
+}
+let items = [];
+function renderDir(){
+  $("#dir").innerHTML = TOOLS.map(entry).join("");
+  items = [...document.querySelectorAll(".e")];
+  observeRv($("#dir"));
+}
+renderDir();
+$("#stat-total").textContent = TOOLS.length;
+
+/* chips de categoría con recuento */
+const counts = TOOLS.reduce((m,t)=>(m[t.cat]=(m[t.cat]||0)+1,m),{});
+function renderChips(){
+  $("#chips").setAttribute("aria-label", U().chipsLabel);
+  $("#chips").innerHTML = ["Todas",...CATS].map((c,i)=>{
+    const label = i===0 ? U().all : catName(c);
+    const pressed = (i===0 && cat==="Todas") || c===cat;
+    return `<button class="chip" type="button" data-cat="${esc(c)}" aria-pressed="${pressed}">${esc(label)}<sup>${i===0?TOOLS.length:(counts[c]||0)}</sup></button>`;
+  }).join("");
+}
+
+/* ==========================================================
+   FILTRO + BÚSQUEDA
+   ========================================================== */
+let cat = "Todas";
+const q = $("#q");
+const norm = s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function apply(){
+  const term = norm(q.value.trim());
+  let shown = 0;
+  items.forEach(el=>{
+    const ok = (cat==="Todas"||el.dataset.cat===cat) && (!term||norm(el.dataset.text).includes(term));
+    el.hidden = !ok; if(ok){ shown++; el.classList.add("in"); }
+  });
+  $("#count").textContent = `${shown} ${shown===1?U().result:U().results}`;
+  $("#empty").classList.toggle("on",shown===0);
+}
+$("#chips").addEventListener("click",e=>{
+  const b = e.target.closest(".chip"); if(!b) return;
+  cat = b.dataset.cat;
+  document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===b));
+  apply();
+});
+q.addEventListener("input",apply);
+$("#reset").addEventListener("click",()=>{ q.value=""; $("#chips .chip").click(); });
+addEventListener("keydown",e=>{
+  if(e.key==="/" && document.activeElement!==q){ e.preventDefault(); q.focus(); }
+  if(e.key==="Escape" && document.activeElement===q){ q.value=""; apply(); q.blur(); }
+});
+
+/* ==========================================================
+   REGISTRO DEL AGENTE — datos de muestra
+   ========================================================== */
+const LOG = [{"day": "Hoy · 14 nov", "items": [["07:43", "add", "Añadida", "<b>Fathom</b>, <b>HeyGen</b> y <b>Krisp</b> entran. La lista pasa a 24 herramientas en 14 categorías."], ["07:43", "upd", "Revisión", "9 enlaces comprobados hoy, más los 11 de ayer. Ninguno roto, ningún precio cambiado."], ["07:43", "upd", "En espera", "<b>Manychat</b> no entra todavía: su plan gratis cambió y las fuentes no coinciden."], ["07:43", "upd", "Anotado", "<b>Krisp</b> ya no tiene plan gratis permanente: solo 7 días de prueba."]]}, {"day": "Ayer · 13 nov", "items": [["07:42", "add", "Añadida", "<b>Loom</b> y <b>Descript</b> abren el tema de vídeo; <b>ElevenLabs</b>, el de voz y audio. 21 herramientas, 13 categorías."], ["07:42", "upd", "Precio", "<b>ChatGPT</b> suma el plan Go a $8/mes. Plus sigue en $20 y sin anuncios; Go puede mostrarlos."], ["07:42", "upd", "Corregido", "En <b>Calendly</b>, Notetaker y Callie pasan a ser complementos de pago."], ["07:42", "upd", "Revisión", "11 enlaces verificados. Todos cargan, ninguno roto."]]}, {"day": "12 nov", "items": [["08:11", "add", "Invitación", "Bloque de invitación a Muse con el código <b>QY02JG</b>, botón para copiarlo y enlace a muse.ai/join."], ["07:44", "add", "Añadida", "<b>Calendly</b> (reservas y citas), <b>Otter.ai</b> y <b>Gemini</b> en Google Workspace. 18 herramientas, 11 categorías."], ["07:44", "upd", "Precio", "<b>Copilot</b>: Microsoft ya no publica el precio del complemento suelto. Referencia: paquetes con Copilot, $23,50 y $32."], ["07:44", "upd", "Revisión", "Los 15 enlaces comprobados, uno por uno. Todos cargan."]]}, {"day": "11 nov", "items": [["07:39", "add", "Añadida", "<b>Durable</b>, <b>Tidio</b> y <b>Gamma</b>. La lista pasa de 12 a 15 herramientas y de 9 a 10 temas."], ["07:39", "upd", "Precio", "<b>Make</b>: el plan Core cuesta $12/mes, no ~$9. Ficha corregida."], ["07:03", "add", "Primera versión", "La lista nace con 12 herramientas en 9 temas, con precios y enlaces verificados."]]}];
+let logExpanded = false;
+function renderLog(){
+  const data = lang==="en" ? LOG_EN : LOG;
+  const n = logExpanded ? data.length : 2;
+  $("#log").innerHTML = data.slice(0,n).map(d=>
+    `<li class="log-day">${d.day}</li>` + d.items.map(([t,k,l,txt])=>
+      `<li class="item"><time>${t}</time><span class="act ${k}">${l}</span><span class="txt">${txt}</span></li>`).join("")
+  ).join("");
+}
+renderLog();
+$("#log-more").addEventListener("click",e=>{ logExpanded = true; renderLog(); e.currentTarget.remove(); });
+
+/* ==========================================================
+   COPIAR CÓDIGO
+   ========================================================== */
+$("#copy").addEventListener("click",async e=>{
+  const btn = e.currentTarget, code = $("#code").textContent.trim(), label = $("#copy-label");
+  try{ await navigator.clipboard.writeText(code); }
+  catch{ const r=document.createRange(); r.selectNodeContents($("#code")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand("copy"); s.removeAllRanges(); }
+  label.textContent = U().copied; btn.classList.add("done");
+  $("#copy-status").textContent = U().copyStatus(code);
+  setTimeout(()=>{ label.textContent = U().copy; btn.classList.remove("done"); },2000);
+});
+
+/* ==========================================================
+   APARICIÓN AL HACER SCROLL (IntersectionObserver, sin librerías)
+   ========================================================== */
+requestAnimationFrame(()=>document.body.classList.add("ready"));
+observeRv(document);
+
+/* ==========================================================
+   IDIOMA — ES por defecto, EN al instante y sin recargar.
+   La elección vive solo en memoria durante esta visita.
+   ========================================================== */
+function applyStatic(){
+  const u = U();
+  document.documentElement.lang = lang;
+  document.title = u.title;
+  const meta = document.querySelector('meta[name="description"]'); if(meta) meta.setAttribute("content", u.meta);
+  $("#brand").innerHTML = u.brand;
+  $("#main-nav").setAttribute("aria-label", u.navLabel);
+  $("#nav-dir").textContent = u.navDir;
+  $("#nav-log").textContent = u.navLog;
+  $("#nav-invite").textContent = u.navInvite;
+  $("#kick-1").textContent = u.kick1;
+  $("#kick-2").textContent = u.kick2;
+  $("#kick-3").textContent = u.kick3;
+  $("#titulo").innerHTML = u.hero;
+  $("#lede").innerHTML = u.lede;
+  $("#stat-lbl-tools").textContent = u.statTools;
+  $("#stat-lbl-cats").textContent = u.statCats;
+  $("#stat-lbl-changes").textContent = u.statChanges;
+  $("#search-sr").textContent = u.searchSr;
+  q.setAttribute("placeholder", u.searchPh);
+  $("#dir-title").innerHTML = u.dirTitle;
+  $("#empty-title").textContent = u.emptyTitle;
+  $("#empty-text").textContent = u.emptyText;
+  $("#reset").textContent = u.reset;
+  $("#agent-kicker").textContent = u.agentKicker;
+  $("#agent-title").innerHTML = u.agentTitle;
+  $("#agent-desc").textContent = u.agentDesc;
+  $("#agent-status-text").textContent = u.agentStatus;
+  const lm = $("#log-more"); if(lm) lm.textContent = u.logMore;
+  $("#invite-kicker").textContent = u.inviteKicker;
+  $("#inv-title").innerHTML = u.invTitle;
+  $("#code-label").textContent = u.codeLabel;
+  $("#copy-label").textContent = u.copy;
+  $("#invite-note").innerHTML = u.inviteNote;
+  $("#foot-1").textContent = u.foot1;
+  $("#foot-2").textContent = u.foot2;
+  $("#lang-es").setAttribute("aria-pressed", lang==="es");
+  $("#lang-en").setAttribute("aria-pressed", lang==="en");
+}
+function setLang(l){
+  if(l===lang && l!=="es-init") { /* still refresh */ }
+  lang = (l==="en") ? "en" : "es";
+  applyStatic();
+  renderDir();
+  renderChips();
+  renderLog();
+  apply();
+}
+$("#lang-es").addEventListener("click",()=>setLang("es"));
+$("#lang-en").addEventListener("click",()=>setLang("en"));
+/* arranque: español por defecto */
+applyStatic();
+renderChips();
+apply();
+</script>
+</body>
+</html>
