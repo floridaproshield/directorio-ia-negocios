@@ -530,6 +530,8 @@ let lang = "es";
 const U = ()=>UI[lang];
 const catName = c=> lang==="en" ? (CAT_EN[c]||c) : c;
 const price = p=>/^\s*(gratis|free)/i.test(p)?`<span class="free">${esc(p)}</span>`:esc(p);
+/* Herramientas que ya tienen artículo completo: nombre en la lista → slug de su ancla #articulo-<slug> */
+const ARTICLE_SLUGS = {"ChatGPT":"chatgpt","Muse":"muse","Claude":"claude","Microsoft 365 Copilot":"copilot","Perplexity":"perplexity","Zapier":"zapier","Make":"make","Notion AI":"notion","Canva · Magic Studio":"canva","Jasper":"jasper","HubSpot · Breeze / Agent Hub":"hubspot","Intercom Fin":"intercom","Fireflies":"fireflies","Durable":"durable","Tidio":"tidio","Gamma":"gamma","Calendly":"calendly","Otter.ai":"otter","Gemini en Google Workspace":"gemini","Loom":"loom","Descript":"descript","ElevenLabs":"elevenlabs","Fathom":"fathom","HeyGen":"heygen","Krisp":"krisp","Manychat":"manychat","Mailchimp":"mailchimp","Buffer":"buffer"};
 let io = null;
 function observeRv(scope){
   if(!("IntersectionObserver" in window)){ scope.querySelectorAll(".rv").forEach(el=>el.classList.add("in")); return; }
@@ -546,16 +548,19 @@ function entry(t,i){
   const n = pad(i+1), v = t.layout.split(" ")[0];
   const top  = `<div class="e-top"><span class="e-idx">${n}</span><span class="e-cat">${esc(catTxt)}</span></div>`;
   const meta = `<div class="e-meta"><span class="e-price">${price(priceTxt)}</span><a class="e-link" href="${esc(t.url)}" target="_blank" rel="noopener">${U().visit} ${arrow}<span class="sr"> ${esc(t.name)}</span></a></div>`;
-  const name = t.name==="Muse"
-    ? `<h3 class="e-name"><a class="e-title-link" href="#articulo-muse">${esc(t.name)}</a></h3><a class="e-art-hint mono" href="#articulo-muse">${esc(U().artHint)}</a>`
+  const slug = ARTICLE_SLUGS[t.name];
+  const name = slug
+    ? `<h3 class="e-name"><a class="e-title-link" href="#articulo-${slug}">${esc(t.name)}</a></h3><a class="e-art-hint mono" href="#articulo-${slug}">${esc(U().artHint)}</a>`
     : `<h3 class="e-name">${esc(t.name)}</h3>`;
   const desc = `<p class="e-desc">${esc(descTxt)}</p>`;
   let inner;
   switch(v){
     case "feature": {
       const [a,...b] = t.name.split(" ");
+      const fname = `${esc(a)}${b.length?` <em>${esc(b.join(" "))}</em>`:""}`;
       inner = `<div class="e-top"><span class="badge">${esc(U().badge)}</span><span class="e-cat">${n} — ${esc(catTxt)}</span></div>
-        <h3 class="e-name">${esc(a)}${b.length?` <em>${esc(b.join(" "))}</em>`:""}</h3>
+        <h3 class="e-name">${slug?`<a class="e-title-link" href="#articulo-${slug}">${fname}</a>`:fname}</h3>
+        ${slug?`<a class="e-art-hint mono" href="#articulo-${slug}">${esc(U().artHint)}</a>`:""}
         <div class="e-side">${desc}${meta}</div>`; break;
     }
     case "large":  inner = `${top}<div class="big-n" aria-hidden="true">${n}</div>${name}${desc}${meta}`; break;
@@ -706,30 +711,1488 @@ en:{
   codeLabel:"Invitation code · Muse",
   visit:"Visit"
 }};
+/* ==========================================================
+   ARTÍCULOS COMPLETOS — un mapa por herramienta (slug → artículo).
+   Misma estructura que el de Muse: veredicto, qué es y para quién,
+   cómo lo usa un negocio pequeño, precios reales y letra pequeña.
+   Los datos salen de cada ficha del directorio; nada más se afirma.
+   ========================================================== */
+const ARTICLES = {
+muse: ART_MUSE,
+chatgpt: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 01 · Asistentes · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Si solo vas a abrir una IA, que sea esta: para el trabajo escrito de cada día, sigue siendo la más completa.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "ChatGPT es el asistente de IA de referencia, el que todo el mundo conoce, y su ficha en este directorio lo resume sin rodeos: el de siempre, y sigue siendo el más completo. No hace una sola cosa especializada: hace de todo un poco, y ese «de todo» es justo lo que necesita quien lleva un negocio de servicios y se lo escribe todo él.",
+      "Piensa en el dueño que redacta los presupuestos, contesta los correos de los clientes y responde las reseñas de Google a las once de la noche. Para esa persona — no para un equipo con departamentos — está pensado este artículo y esta herramienta."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Un ejemplo concreto, de los de cada semana. Entra una solicitud por la web: «necesito un presupuesto para reformar un baño». En vez de partir de una hoja en blanco, el dueño pega sus notas en ChatGPT — medidas, materiales, lo que incluye y lo que no — y sale con un borrador de presupuesto ordenado, listo para ajustar los números y enviar. El mismo día, una reseña de dos estrellas en Google: le pide tres respuestas posibles, elige la más tranquila y la publica en dos minutos, sin escribirla caliente.",
+      "Ninguna de las dos tareas es espectacular. Esa es la gracia: son las horas tontas de papeleo y pantalla las que desaparecen, no el trabajo que el cliente paga."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Se puede usar <b>gratis, con límites</b>. El primer escalón de pago de su ficha es <b>Go, a $8/mes</b>.",
+      "Y según consta en el registro de este directorio, el plan <b>Plus sigue en $20/mes y sin anuncios</b>, mientras que Go puede mostrarlos. Esos son los precios verificados que publicamos; si cambian, la revisión diaria los corrige aquí y en la ficha."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La palabra clave del plan gratis es «límites»: existe y sirve para trabajar, pero no es ilimitado, y la ficha lo dice tal cual. No publicamos cifras de uso que no estén en la ficha, así que si tu idea es vivir en el plan gratis todo el día, pruébalo con tu carga real antes de organizar el negocio alrededor.",
+      "Lo segundo ya lo sabes si leíste los precios: el escalón barato, Go, puede venir con anuncios; el que no los muestra es Plus. Barato y sin anuncios a la vez, de momento, no hay."
+    ]}
+  ],
+  official:"Web oficial · chatgpt.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 01 · Assistants · Full article',
+  vlabel:"The verdict",
+  verdict:"If you're only going to open one AI, make it this one: for everyday written work, it's still the most complete.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "ChatGPT is the reference AI assistant, the one everyone knows, and its entry in this directory says it plainly: the usual one, and still the most complete. It doesn't do one specialized thing: it does a bit of everything, and that “everything” is exactly what someone running a service business — who writes everything themselves — needs.",
+      "Think of the owner who drafts the quotes, answers client emails and replies to Google reviews at eleven at night. This article, and this tool, are for that person — not for a company with departments."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A concrete example, the weekly kind. A request comes in through the website: “I need a quote to remodel a bathroom.” Instead of starting from a blank page, the owner pastes their notes into ChatGPT — measurements, materials, what's included and what isn't — and gets back a tidy draft quote, ready to adjust the numbers and send. That same day, a two-star Google review: they ask for three possible replies, pick the calmest one and post it in two minutes, without writing it while annoyed.",
+      "Neither task is spectacular. That's the point: it's the dumb hours of paperwork and screen time that disappear, not the work the client pays for."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "You can use it <b>free, with limits</b>. The first paid step in its listing is <b>Go, at $8/month</b>.",
+      "And as this directory's log records, the <b>Plus plan is still $20/month with no ads</b>, while Go may show them. Those are the verified prices we publish; if they change, the daily review corrects them here and in the listing."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The key word in the free plan is “limits”: it exists and it's fine for working, but it isn't unlimited, and the listing says so as-is. We don't publish usage figures that aren't in the listing, so if your plan is to live on the free tier all day, test it with your real workload before organizing the business around it.",
+      "The second thing you already know if you read the pricing: the cheap step, Go, may come with ads; the one that doesn't show them is Plus. Cheap and ad-free at the same time, for now, doesn't exist."
+    ]}
+  ],
+  official:"Official site · chatgpt.com",
+  visit:"Visit"
+}},
+claude: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 03 · Asistentes · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Cuando el papel es largo y firmar mal sale caro, Claude es el que yo abro.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Claude es un asistente de IA, sí, pero su sitio en esta lista no es «otro chat más». Su ficha lo plantea con una escena muy concreta: te llega un contrato de 40 páginas — o una póliza, que es peor — y necesitas saber qué dice de verdad antes de firmar. Para ese momento, hoy, es la herramienta que recomendamos.",
+      "¿Para quién? Para el negocio pequeño que firma cosas sin tener un abogado en plantilla: contratos de alquiler del local, pólizas, acuerdos con proveedores. Documentos largos, con letra que importa, y nadie en la empresa cuyo trabajo sea leérselos enteros."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "El ejemplo es el de la propia ficha, paso a paso. Llega la renovación del contrato del local: 40 páginas. El dueño lo sube a Claude y no le pide «un resumen» a secas, le pide lo que de verdad necesita decidir: los <b>plazos</b> — cuándo se renueva, con cuánta antelación hay que avisar —, las <b>exclusiones</b> y las <b>penalizaciones</b> si se sale antes de tiempo.",
+      "Con eso claro, la conversación con la otra parte cambia por completo: ya no firma a ciegas ni paga una revisión completa por un documento estándar; pregunta justo por las dos o tres cláusulas que le preocupan. El documento lo sigue firmando él — pero sabiendo lo que firma."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Claude se puede usar <b>gratis</b>. El plan de pago de su ficha es <b>Pro: $17/mes con pago anual, o $20 si pagas mes a mes</b>.",
+      "No hay más escalones en la ficha, y no los inventamos: esos dos números — el anual y el mensual — son toda la letra de precios que publicamos."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "Fíjate en cómo está escrito el precio de Pro, porque ahí está el detalle: $17 no es «el precio», es el precio si pagas el año entero por adelantado. Mes a mes son $20. La diferencia es pequeña, pero es la clase de cosa que este directorio subraya siempre: el número bonito suele llevar una condición al lado.",
+      "Y una advertencia que no es de precio sino de oficio: Claude te ayuda a entender el contrato, no sustituye al abogado cuando lo que se firma es grande. Para leer y llegar preparado, perfecto; la firma sigue siendo responsabilidad tuya."
+    ]}
+  ],
+  official:"Web oficial · claude.ai",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 03 · Assistants · Full article',
+  vlabel:"The verdict",
+  verdict:"When the document is long and signing badly is expensive, Claude is the one I open.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Claude is an AI assistant, yes, but its place on this list isn't “just another chat.” Its entry frames it with a very concrete scene: a 40-page contract lands on your desk — or an insurance policy, which is worse — and you need to know what it really says before signing. For that moment, today, it's the tool we recommend.",
+      "Who is it for? The small business that signs things without having a lawyer on staff: the shop lease, insurance policies, supplier agreements. Long documents, with wording that matters, and nobody in the company whose job it is to read them cover to cover."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The example is the one from its own entry, step by step. The lease renewal for the premises arrives: 40 pages. The owner uploads it to Claude and doesn't just ask for “a summary” — they ask for what they actually need to decide: the <b>deadlines</b> — when it renews, how much notice is required —, the <b>exclusions</b>, and the <b>penalties</b> for leaving early.",
+      "With that clear, the conversation with the other side changes completely: they no longer sign blind or pay for a full review of a standard document; they ask about exactly the two or three clauses that worry them. They still sign the document themselves — but knowing what they're signing."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Claude can be used <b>free</b>. The paid plan in its listing is <b>Pro: $17/month billed annually, or $20 if you pay month to month</b>.",
+      "There are no more tiers in the listing, and we don't invent them: those two numbers — annual and monthly — are all the pricing we publish."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "Look at how the Pro price is written, because that's where the detail lives: $17 isn't “the price,” it's the price if you pay the whole year up front. Month to month it's $20. The difference is small, but it's exactly the kind of thing this directory always underlines: the pretty number usually has a condition next to it.",
+      "And one warning that isn't about price but about craft: Claude helps you understand the contract; it doesn't replace a lawyer when what's being signed is big. For reading and arriving prepared, perfect; the signature is still your responsibility."
+    ]}
+  ],
+  official:"Official site · claude.ai",
+  visit:"Visit"
+}},
+copilot: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 04 · Asistentes · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Si tu oficina ya vive en Outlook y Teams, Copilot es el camino corto: la IA sin salir de donde ya trabajas.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Microsoft 365 Copilot es el asistente de IA de Microsoft, y su argumento no es ser el más listo de la lista: es estar dentro. Dentro de Outlook, dentro de Teams, dentro de los documentos con los que la oficina ya trabaja cada día. Su ficha lo dice sin vueltas: si tu oficina ya vive ahí, este es el camino corto.",
+      "Eso define también para quién es: para el negocio que ya paga y usa Microsoft 365 a diario. Si tu correo y tus reuniones viven en otro sitio, su gran ventaja — no cambiar de herramientas — sencillamente no aplica."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "La ficha trae tres escenas, y las tres pasan la misma semana en una oficina pequeña. Primera: un hilo de correo de 30 mensajes sobre un cliente que ha ido creciendo durante un mes; Copilot lo resume en tres líneas y el lunes empiezas sabiendo en qué quedó la cosa, sin releer la cadena entera.",
+      "Segunda: la reunión de Teams termina y, en vez del «¿quién hace las actas?» de siempre, sale el acta con las tareas asignadas. Tercera: de un documento de Word con las notas del proyecto, monta la primera versión de la presentación para el cliente. Ninguna escena exige aprender una herramienta nueva: ocurren dentro de las que ya están abiertas todo el día."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Aquí la ficha es deliberadamente rara, y conviene leerla tal cual: <b>sin precio fijo suelto</b>. La referencia que publicamos son los paquetes con Copilot incluido: <b>Standard, $23,50 por usuario al mes, y Premium, $32 por usuario al mes</b>.",
+      "Como quedó anotado en el registro de este directorio, Microsoft ya no publica el precio del complemento suelto como antes; por eso la ficha da los paquetes como referencia en vez de un número único."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "Lo primero: el precio es <b>por usuario y por mes</b>. $23,50 suena a poco hasta que lo multiplicas por cada persona de la oficina que lo vaya a usar; haz esa cuenta antes, con tu número real de usuarios, no con el de la portada.",
+      "Lo segundo se deduce de lo anterior: no hay un «Copilot» que compras solo y ya. Se habla de paquetes, y el precio que te aplica depende del paquete. Antes de decidir, confirma en su página oficial qué incluye exactamente el Standard y qué añade el Premium, porque esa diferencia — y no el titular — es la que estás pagando."
+    ]}
+  ],
+  official:"Web oficial · microsoft.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 04 · Assistants · Full article',
+  vlabel:"The verdict",
+  verdict:"If your office already lives in Outlook and Teams, Copilot is the shortcut: AI without leaving where you already work.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Microsoft 365 Copilot is Microsoft's AI assistant, and its argument isn't being the smartest on this list: it's being inside. Inside Outlook, inside Teams, inside the documents the office already works with every day. Its entry says it straight: if your office already lives there, this is the shortcut.",
+      "That also defines who it's for: the business that already pays for and uses Microsoft 365 daily. If your email and meetings live somewhere else, its big advantage — not switching tools — simply doesn't apply."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The entry has three scenes, and all three happen in the same week in a small office. First: an email thread of 30 messages about a client, grown over a month; Copilot sums it up in three lines and on Monday you start knowing where things stand, without re-reading the whole chain.",
+      "Second: the Teams meeting ends and, instead of the usual “who's doing the minutes?”, out come the minutes with tasks assigned. Third: from a Word document with the project notes, it drafts the first version of the client presentation. None of the scenes requires learning a new tool: they happen inside the ones already open all day."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Here the listing is deliberately odd, and it's worth reading as-is: <b>no fixed standalone price</b>. The reference we publish is the bundles with Copilot included: <b>Standard, $23.50 per user per month, and Premium, $32 per user per month</b>.",
+      "As this directory's log noted, Microsoft no longer publishes the standalone add-on price the way it used to; that's why the listing gives the bundles as the reference instead of a single number."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "First: the price is <b>per user, per month</b>. $23.50 sounds small until you multiply it by every person in the office who will actually use it; do that maths first, with your real number of users, not the headline one.",
+      "Second, and it follows from the first: there is no “Copilot” you just buy on its own and that's it. It's bundles, and the price that applies to you depends on the bundle. Before deciding, check on its official page what Standard actually includes and what Premium adds, because that difference — not the headline — is what you're paying for."
+    ]}
+  ],
+  official:"Official site · microsoft.com",
+  visit:"Visit"
+}},
+perplexity: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 05 · Investigación · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Antes de poner un precio, pregunta aquí: responde con datos de hoy y te enseña las fuentes.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Perplexity es la herramienta de investigación de esta lista, y se distingue de los asistentes en una cosa: no te da una respuesta y ya, te da la respuesta con las fuentes enlazadas para que puedas comprobar de dónde sale. Su ficha lo plantea desde las dos preguntas que un negocio se hace antes de mover ficha.",
+      "Es para quien tiene que decidir con datos que cambian: cuánto se está cobrando por algo en su ciudad, qué pide una normativa que acaba de salir. Si la respuesta que necesitas tiene que ser de esta semana — no de cuando se entrenó un modelo —, esta es tu herramienta."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "El ejemplo de la ficha, entero. Un taller va a lanzar un servicio nuevo y no sabe qué cobrar. Antes de inventarse el número, pregunta en Perplexity cuánto cobra la competencia por ese mismo servicio en su ciudad, y luego la segunda pregunta, la que suele llegar tarde: qué exige la normativa nueva que afecta al trabajo.",
+      "La diferencia práctica está en el final de la respuesta: los enlaces. El dueño no se queda con un «la IA dice que…»; abre las fuentes, ve quién cobra qué y dónde lo dice, y cotiza con eso delante. La decisión sigue siendo suya, pero ya no es una corazonada."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Perplexity se puede usar <b>gratis</b>. El plan de pago de su ficha es <b>Pro: $20/mes, o $17/mes si pagas el año</b>.",
+      "Como en el resto del directorio, publicamos solo eso: lo que la ficha trae verificado. Ni funciones extra ni límites que no consten."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "El descuento de Pro es el de siempre en esta lista: los $17 existen, pero a cambio de pagar el año completo por adelantado. Mes a mes, son $20. No es un engaño; es, simplemente, la condición que acompaña al número bonito.",
+      "Y la otra letra pequeña es de método, no de precio: que una respuesta traiga fuentes no la convierte en cierta. Las trae, precisamente, para que las abras. El trabajo de Perplexity es ahorrarte la búsqueda; el de comprobar la fuente que importa sigue siendo tuyo, y en una pregunta de normativa no conviene saltárselo."
+    ]}
+  ],
+  official:"Web oficial · perplexity.ai",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 05 · Research · Full article',
+  vlabel:"The verdict",
+  verdict:"Before you set a price, ask here: it answers with today's data and shows you the sources.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Perplexity is the research tool on this list, and it differs from the assistants in one thing: it doesn't just hand you an answer, it hands you the answer with the sources linked, so you can check where it comes from. Its entry frames it around the two questions a business asks before making a move.",
+      "It's for anyone who has to decide using data that changes: how much is being charged for something in their city, what a brand-new regulation requires. If the answer you need has to be from this week — not from whenever a model was trained — this is your tool."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The example from its entry, in full. A workshop is about to launch a new service and doesn't know what to charge. Before making the number up, it asks Perplexity how much competitors charge for that same service in its city — and then the second question, the one that usually arrives late: what the new regulation affecting the work requires.",
+      "The practical difference is at the end of the answer: the links. The owner isn't left with “the AI says…”; they open the sources, see who charges what and where it says so, and quote with that in front of them. The decision is still theirs, but it's no longer a hunch."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Perplexity can be used <b>free</b>. The paid plan in its listing is <b>Pro: $20/month, or $17/month if you pay for the year</b>.",
+      "As with the rest of the directory, that's all we publish: what the listing has verified. No extra features, no limits that aren't on record."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The Pro discount is the usual one on this list: the $17 exists, but in exchange for paying the full year up front. Month to month, it's $20. It isn't a trick; it's simply the condition that comes with the pretty number.",
+      "And the other fine print is about method, not price: an answer carrying sources doesn't make it true. It carries them precisely so you open them. Perplexity's job is to save you the searching; checking the source that matters is still yours, and on a regulation question you don't want to skip it."
+    ]}
+  ],
+  official:"Official site · perplexity.ai",
+  visit:"Visit"
+}},
+zapier: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 06 · Automatización · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"El lead entra por tu web y llega solo a tu CRM, a tu lista y a tu vendedor: eso es Zapier, y se entiende en un minuto.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Zapier es la herramienta de automatización de referencia de esta lista: conecta las aplicaciones que un negocio ya usa para que el trabajo pase de una a otra sin que nadie lo copie a mano. Su ficha no lo explica con teoría: lo explica con un ejemplo que tarda menos de un minuto en ocurrir.",
+      "Es para el negocio que ya pierde tiempo en trasvases tontos — el contacto que hay que crear dos veces, el aviso que depende de que alguien se acuerde — y que prefiere que el sistema lo haga siempre igual, también a las tres de la mañana."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "El ejemplo es el de la ficha, porque lo explica todo. Entra un lead por el formulario de la web de una empresa de servicios: alguien pide información un martes a las nueve de la noche. Sin que nadie toque nada, ocurren tres cosas: el contacto se crea en el CRM, esa persona entra en la lista de correo, y el vendedor recibe el aviso.",
+      "Cuando el vendedor llega el miércoles, el lead no está en un correo perdido entre cuarenta: está en su sitio, con su aviso dado. El cliente, además, fue atendido en el minuto en que escribió, aunque la oficina estuviera cerrada. Esa cadena — formulario, CRM, lista, aviso — es la primera automatización que monta casi todo el mundo, y la que mejor enseña para qué sirve esto."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Zapier tiene plan <b>gratis, con 100 tareas al mes</b>. El de pago de su ficha es <b>Professional, desde $19,99/mes</b>.",
+      "Fíjate en la unidad en la que se habla aquí: tareas. No usuarios ni contactos: cada acción que la automatización ejecuta cuenta, y con eso se mide el plan."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "El plan gratis existe y sirve para montar esa primera cadena y comprobar que funciona, pero su techo está escrito en la propia ficha: 100 tareas al mes. Un negocio con un formulario tranquilo ni lo nota; uno que empieza a recibir leads a diario puede comérselo antes de fin de mes, y entonces la conversación ya es la del plan de pago.",
+      "Y en el de pago, quédate con la palabra «desde»: Professional parte de $19,99/mes. Es el suelo del plan, no una tarifa única para todo el mundo; lo que acabes pagando dependerá de tu volumen, así que confirma tu caso en su página de precios antes de darlo por hecho."
+    ]}
+  ],
+  official:"Web oficial · zapier.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 06 · Automation · Full article',
+  vlabel:"The verdict",
+  verdict:"The lead comes in through your website and lands by itself in your CRM, your list and your salesperson's phone: that's Zapier, understood in a minute.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Zapier is the reference automation tool on this list: it connects the apps a business already uses so work passes from one to another without anyone copying it by hand. Its entry doesn't explain it with theory: it explains it with an example that takes under a minute to happen.",
+      "It's for the business already losing time on dumb transfers — the contact that has to be created twice, the notification that depends on someone remembering — and that would rather the system did it the same way every time, including at three in the morning."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The example is the one from its entry, because it explains everything. A lead comes in through the website form of a service company: someone asks for information on a Tuesday at nine at night. Without anyone touching anything, three things happen: the contact is created in the CRM, that person is added to the mailing list, and the salesperson gets notified.",
+      "When the salesperson arrives on Wednesday, the lead isn't sitting in an email lost among forty others: it's in its place, with its notification sent. The client, on top of that, was taken care of the minute they wrote in, even though the office was closed. That chain — form, CRM, list, notification — is the first automation almost everyone builds, and the one that best shows what this is for."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Zapier has a <b>free plan, with 100 tasks a month</b>. The paid plan in its listing is <b>Professional, from $19.99/month</b>.",
+      "Notice the unit used here: tasks. Not users or contacts: every action the automation runs counts, and that's what the plan is measured in."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The free plan exists and is enough to build that first chain and check it works, but its ceiling is written in the listing itself: 100 tasks a month. A business with a quiet form won't even notice; one that starts getting leads daily can burn through it before the month ends, and then the conversation becomes the paid plan.",
+      "And on the paid side, hold on to the word “from”: Professional starts at $19.99/month. That's the plan's floor, not a single rate for everyone; what you end up paying depends on your volume, so confirm your case on its pricing page before taking it as settled."
+    ]}
+  ],
+  official:"Official site · zapier.com",
+  visit:"Visit"
+}},
+make: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 07 · Automatización · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Make hace lo mismo que Zapier, pero en un editor visual donde ves qué le pasa a cada dato en cada paso.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Make es la otra gran herramienta de automatización de la lista, y su ficha empieza reconociéndolo: hace lo mismo que Zapier. La diferencia que le da su sitio propio no es el qué, es el cómo: trabaja en un editor visual donde el flujo se dibuja y puedes ver exactamente qué ocurre con cada dato en cada paso.",
+      "Eso lo hace especialmente cómodo para quien piensa en dibujos mejor que en listas — y para quien, cuando algo falla, quiere ver en qué paso se torció en vez de adivinarlo."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "El ejemplo de la ficha es el cierre de un trabajo, ese momento en el que un negocio de servicios genera su papeleo. Se termina el servicio y la cadena arranca sola: se genera la factura, la factura se guarda en Drive, el cliente recibe el aviso y el cobro queda registrado.",
+      "Cuatro pasos que a mano son cuatro ratos sueltos — y cuatro oportunidades de que uno se olvide el viernes a última hora. En el editor de Make, además, esa cadena se ve: cada paso es una pieza del dibujo, y si la factura no llegó, miras el dibujo y ves dónde se paró."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Make tiene plan <b>gratis, con 1.000 créditos al mes</b>. El de pago de su ficha es <b>Core: $12/mes, con 10.000 créditos</b>.",
+      "Y ojo a la unidad, porque no es la de su vecino de lista: aquí no se cuentan tareas, se cuentan créditos. Comparar Zapier y Make número contra número sin mirar qué mide cada uno lleva a conclusiones raras."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera letra pequeña es esa, la de la unidad: créditos. El gratis trae 1.000 al mes y Core, por $12, trae 10.000 — diez veces más —, pero cuánto te dura eso depende de cuántos pasos tenga cada automatización que montes, y eso solo lo sabes con tu flujo real, no con el de la portada.",
+      "La segunda es de comparación honesta: su ficha lo presenta como alternativa a Zapier haciendo «lo mismo», y el registro de este directorio ya corrigió una vez su precio — Core cuesta $12/mes, no los ~$9 que se publicaron al principio. Si ves por ahí la cifra vieja, la buena es la de esta ficha."
+    ]}
+  ],
+  official:"Web oficial · make.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 07 · Automation · Full article',
+  vlabel:"The verdict",
+  verdict:"Make does the same job as Zapier, but in a visual editor where you see what happens to each piece of data at every step.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Make is the other big automation tool on this list, and its entry starts by admitting it: it does the same thing as Zapier. The difference that earns it its own place isn't the what, it's the how: it works in a visual editor where the flow is drawn out and you can see exactly what happens to each piece of data at every step.",
+      "That makes it especially comfortable for people who think in diagrams better than in lists — and for anyone who, when something breaks, wants to see which step went wrong instead of guessing."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The example from its entry is the closing of a job, that moment when a service business generates its paperwork. The job is finished and the chain starts by itself: the invoice is generated, the invoice is saved to Drive, the client gets notified, and the payment is recorded.",
+      "Four steps that, done by hand, are four separate little chores — and four chances for one of them to be forgotten last thing on a Friday. In Make's editor, on top of that, the chain is visible: each step is a piece of the drawing, and if the invoice didn't arrive, you look at the drawing and see where it stopped."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Make has a <b>free plan, with 1,000 credits a month</b>. The paid plan in its listing is <b>Core: $12/month, with 10,000 credits</b>.",
+      "And mind the unit, because it isn't its list-neighbour's: here you don't count tasks, you count credits. Comparing Zapier and Make number against number without looking at what each one measures leads to odd conclusions."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit of fine print is exactly that, the unit: credits. The free plan brings 1,000 a month and Core, for $12, brings 10,000 — ten times more — but how long that lasts depends on how many steps each automation you build has, and you only learn that with your real flow, not the homepage one.",
+      "The second is about honest comparison: its entry presents it as an alternative to Zapier doing “the same thing,” and this directory's log already corrected its price once — Core costs $12/month, not the ~$9 first published. If you see the old figure around, the right one is the one in this listing."
+    ]}
+  ],
+  official:"Official site · make.com",
+  visit:"Visit"
+}},
+notion: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 08 · Productividad · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Si tu equipo ya vive en Notion, su IA no te pide cambiar de sitio: te quita justo el trabajo que ya haces ahí dentro.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Notion AI es la capa de inteligencia artificial de Notion, y su ficha empieza con una condición que lo ordena todo: esto solo tiene sentido si tu equipo ya vive en Notion. No es una herramienta que se adopta por sí sola; es la que aprovecha que tus notas, tus actas y tus acuerdos ya están guardados en el mismo sitio.",
+      "¿Para quién, entonces? Para el equipo pequeño que ya documenta su trabajo en Notion y pierde tiempo volviendo sobre lo que ya escribió: buscar qué se acordó, pasar a limpio lo que se habló. Si ese es tu día a día, la propuesta se entiende enseguida. Si no usas Notion, no hay nada que entender: esta ficha no es para ti, y lo decimos sin rodeos."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Imagina una consultora pequeña, de cuatro personas, que guarda en Notion las notas de cada cliente. Termina la reunión semanal y el acta no queda pendiente para el viernes: se escribe sola a partir de lo tratado. Ese es el primer ahorro, el aburrido, el que nadie echa de menos hacer a mano.",
+      "El segundo aparece semanas después. Antes de una llamada de seguimiento, alguien pregunta en la búsqueda: «¿qué acordamos con este cliente en marzo?». En lugar de abrir página por página, la respuesta sale de leer los propios documentos del equipo. No es magia: es que el conocimiento ya estaba ahí, solo que antes costaba encontrarlo."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "La ficha es clara en cómo se accede a la IA completa: viene con el plan <b>Business, a $20 por miembro y mes con pago anual</b>.",
+      "No publicamos otro escalón porque la ficha no trae otro. Ese es el precio verificado que consta en el directorio, con su condición — pago anual — escrita al lado, como debe ser."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera letra pequeña ya la conoces: el precio es <b>por miembro</b>. Veinte dólares suenan a poco hasta que los multiplicas por cada persona del equipo que trabaja en Notion. Haz esa cuenta con tu número real antes de decidir.",
+      "La segunda es la condición de entrada: los $20 son con pago anual. Y hay una tercera, que no es de precio sino de lógica: todo el valor de esta IA depende de que tu trabajo viva de verdad en Notion. Si tu equipo lo usa a medias, la búsqueda responderá sobre una casa a medio amueblar."
+    ]}
+  ],
+  official:"Web oficial · notion.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 08 · Productivity · Full article',
+  vlabel:"The verdict",
+  verdict:"If your team already lives in Notion, its AI doesn't ask you to move anywhere: it takes away exactly the work you already do in there.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Notion AI is Notion's artificial intelligence layer, and its listing starts with a condition that puts everything in place: this only makes sense if your team already lives in Notion. It isn't a tool you adopt on its own; it's the one that takes advantage of the fact that your notes, your minutes and your agreements are already kept in the same place.",
+      "Who is it for, then? The small team that already documents its work in Notion and wastes time going back over what it already wrote: hunting down what was agreed, typing up what was discussed. If that's your day to day, the pitch makes sense right away. If you don't use Notion, there's nothing to weigh up: this listing isn't for you, and we say so plainly."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "Picture a small consultancy, four people, that keeps every client's notes in Notion. The weekly meeting ends and the minutes don't sit pending until Friday: they write themselves from what was discussed. That's the first saving — the boring one nobody misses doing by hand.",
+      "The second shows up weeks later. Before a follow-up call, someone asks the search: “what did we agree with this client in March?” Instead of opening page after page, the answer comes from reading the team's own documents. It isn't magic: the knowledge was already there, it just used to be hard to find."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "The listing is clear about how you get the full AI: it comes with the <b>Business plan, at $20 per member per month billed annually</b>.",
+      "We don't publish any other tier because the listing doesn't carry one. That is the verified price on record in this directory, with its condition — annual billing — written right next to it, as it should be."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit of fine print you already know: the price is <b>per member</b>. Twenty dollars sounds small until you multiply it by every person on the team who works in Notion. Do that maths with your real headcount before deciding.",
+      "The second is the entry condition: the $20 is billed annually. And there's a third, which isn't about price but about logic: all of this AI's value depends on your work genuinely living in Notion. If your team only half-uses it, search will be answering questions about a half-furnished house."
+    ]}
+  ],
+  official:"Official site · notion.com",
+  visit:"Visit"
+}},
+canva: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 09 · Diseño · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Para el negocio que se hace su propio marketing sin diseñador, Canva es donde la primera versión de todo sale en minutos.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Canva, con su Magic Studio, es la herramienta de diseño de esta lista, y su ficha no la presenta como un programa para diseñadores: la presenta desde el restaurante, la tienda o el taller que se hace su propio marketing. Esa es la clave. No compite por el trabajo fino de un estudio; compite por el cartel que necesitas hoy.",
+      "Es para quien publica, imprime y anuncia sin tener a nadie de diseño en plantilla — y sin presupuesto para encargarlo fuera cada semana. Si las piezas de tu negocio las terminas haciendo tú entre cliente y cliente, esta herramienta habla tu idioma."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Un restaurante saca la foto del plato del día con el móvil. La foto vale, pero el fondo es la cocina a mediodía. En Canva le quita el fondo a la foto del producto, la deja limpia sobre su diseño y de esa misma pieza sale el resto de la semana: el post de Instagram se convierte en historia, en flyer para la puerta y en la página del menú, con un par de clics por formato.",
+      "Nada de eso sustituye a un diseñador para una campaña grande. Pero entre «no publico nada porque no me da la vida» y «publico hoy con una pieza decente», la diferencia para un negocio pequeño es enorme. La primera versión de cualquier pieza sale de aquí; pulirla ya es otra conversación."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Se puede empezar <b>gratis, con unos 50 créditos de IA al mes</b>. El plan de pago de su ficha es <b>Pro, por unos $15/mes</b>.",
+      "Fíjate en que la propia ficha escribe los dos números con un «~» delante: son cifras aproximadas, y así las publicamos. No las redondeamos a un precio exacto que no consta."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera letra pequeña está en el plan gratis: los créditos de IA no son ilimitados, son unos 50 al mes. Para probar y para un uso ocasional alcanzan; si empiezas a generar piezas con IA cada día, ese contador es el que te empuja a Pro, y conviene saberlo antes de montar tu rutina sobre el plan gratuito.",
+      "La segunda es ese «~» de los precios. Unos $15 al mes es la referencia verificada de la ficha, no una tarifa cerrada para todo el mundo: confirma la cifra exacta en su web oficial el día que vayas a pagar, porque es la clase de precio que se mueve sin hacer ruido."
+    ]}
+  ],
+  official:"Web oficial · canva.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 09 · Design · Full article',
+  vlabel:"The verdict",
+  verdict:"For the business doing its own marketing without a designer, Canva is where the first draft of everything comes out in minutes.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Canva, with its Magic Studio, is the design tool on this list, and its listing doesn't present it as software for designers: it presents it from the point of view of the restaurant, the shop or the workshop doing its own marketing. That's the key. It doesn't compete for a studio's fine work; it competes for the poster you need today.",
+      "It's for anyone who posts, prints and advertises without having a designer on staff — and without the budget to outsource it every week. If your business's materials end up being made by you, between one client and the next, this tool speaks your language."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A restaurant takes a photo of today's special with a phone. The photo works, but the background is the kitchen at midday. In Canva it removes the background from the product photo, sets it clean over its design, and from that same piece the rest of the week comes out: the Instagram post becomes a story, a flyer for the door and a page of the menu, in a couple of clicks per format.",
+      "None of that replaces a designer for a big campaign. But between “I post nothing because I never find the time” and “I post today with a decent piece,” the difference for a small business is huge. The first draft of any piece comes out of here; polishing it is another conversation."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "You can start <b>free, with about 50 AI credits a month</b>. The paid plan in its listing is <b>Pro, at about $15/month</b>.",
+      "Notice that the listing itself writes both numbers with a “~” in front: they are approximate figures, and that's how we publish them. We don't round them into an exact price that isn't on record."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit of fine print is in the free plan: the AI credits aren't unlimited, they're about 50 a month. Enough to try it and for occasional use; if you start generating pieces with AI every day, that counter is what pushes you to Pro, and it's worth knowing before you build your routine on the free plan.",
+      "The second is that “~” in the pricing. About $15 a month is the listing's verified reference, not a fixed rate for everyone: confirm the exact figure on its official site the day you go to pay, because it's the kind of price that moves without making a sound."
+    ]}
+  ],
+  official:"Official site · canva.com",
+  visit:"Visit"
+}},
+jasper: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 10 · Marketing · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Seremos directos, como su ficha: para casi todo el mundo, Jasper sobra.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Jasper es una herramienta de IA orientada al marketing, al texto que un negocio publica para vender: esa es su categoría en este directorio y ese es su terreno. Hasta ahí, nada raro. Lo raro es el precio al que juega, y por eso su ficha es la más breve y la más tajante de la lista.",
+      "¿Para quién podría tener sentido, entonces? La propia ficha marca el listón: para casi todo el mundo, sobra. Queda, como mucho, el negocio cuyo volumen de marketing sea tan grande que una herramienta dedicada se pague sola. Si no sabes si eres ese negocio, casi seguro que no lo eres."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Pongamos el ejemplo más favorable. Una tienda que publica a diario — textos para sus productos, para sus anuncios, para sus redes — pone a Jasper a producir primeras versiones y se ahorra partir de la hoja en blanco cada mañana. El uso existe y es exactamente el que promete su categoría: marketing, en cantidad.",
+      "Ahora viene la parte que su ficha subraya y este artículo no va a suavizar: ese mismo trabajo de borradores, en gran parte, ya lo hace un asistente general de $20 al mes. El ejemplo funciona; lo que no funciona es la factura. Por eso el ejemplo de Jasper no es «mira lo que hace», sino «mira lo que hace… y pregúntate si necesitas pagarlo aparte»."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Aquí no hay escalones que contar: <b>sin plan gratis</b>, y <b>Pro a $59 por asiento y mes con pago anual</b>. Esos son todos los precios de su ficha.",
+      "Compáralos con el resto de la lista sin salir de esta página: hay asistentes completos por $20 al mes y herramientas con plan gratis real. Jasper entra en la conversación costando casi el triple que la referencia, y sin dejarte probar gratis antes."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La letra pequeña empieza antes de pagar: no hay plan gratis. La manera de saber si te sirve es suscribirte, y eso, en un directorio que valora probar antes de comprometerse, ya es un dato en sí mismo.",
+      "Lo demás está en la propia redacción del precio: $59 por <b>asiento</b> — si lo usa más de una persona, multiplica — y con <b>pago anual</b> para que la cifra sea esa. El número de la portada es el mejor de los casos, no el de tu factura si pagas de otra manera o sois varios."
+    ]}
+  ],
+  official:"Web oficial · jasper.ai",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 10 · Marketing · Full article',
+  vlabel:"The verdict",
+  verdict:"We'll be direct, like its listing: for almost everyone, Jasper is overkill.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Jasper is an AI tool aimed at marketing — the copy a business publishes to sell: that's its category in this directory and that's its turf. So far, nothing unusual. What's unusual is the price it plays at, and that's why its listing is the shortest and bluntest on this list.",
+      "Who could it make sense for, then? The listing itself sets the bar: for almost everyone, it's overkill. What's left, at most, is the business whose marketing volume is so large that a dedicated tool pays for itself. If you don't know whether you're that business, you almost certainly aren't."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "Let's take the most favourable example. A shop that publishes daily — copy for its products, its ads, its socials — puts Jasper to work producing first drafts and saves itself the blank page every morning. The use is real, and it's exactly what its category promises: marketing, in quantity.",
+      "Now the part its listing underlines and this article won't soften: that same drafting work, for the most part, is already done by a general assistant at $20 a month. The example works; what doesn't work is the bill. That's why Jasper's example isn't “look what it does” but “look what it does… and ask yourself whether you need to pay for it separately.”"
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "There are no tiers to walk through here: <b>no free plan</b>, and <b>Pro at $59 per seat per month billed annually</b>. Those are all the prices in its listing.",
+      "Compare them with the rest of the list without leaving this page: there are full assistants at $20 a month and tools with a real free plan. Jasper joins the conversation costing nearly three times the reference, and without letting you try it for free first."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The fine print starts before you pay: there is no free plan. The way to find out if it works for you is to subscribe, and that, in a directory that values trying before committing, is a fact in itself.",
+      "The rest is in the wording of the price itself: $59 per <b>seat</b> — if more than one person uses it, multiply — and <b>billed annually</b> for the figure to be that one. The headline number is the best case, not what lands on your bill if you pay differently or there are several of you."
+    ]}
+  ],
+  official:"Official site · jasper.ai",
+  visit:"Visit"
+}},
+hubspot: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 11 · Ventas y CRM · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Lo interesante de HubSpot no es su IA: es que su agente de clientes solo cobra cuando la conversación queda resuelta.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "HubSpot es, de base, un CRM — el sitio donde un negocio guarda sus contactos y sus ventas — y Breeze, con su Agent Hub, es su capa de IA. Su ficha lo dice de entrada: lo interesante aquí no es la IA, es cómo la cobra. Aun así, conviene entender qué hace: su agente de clientes responde las preguntas frecuentes usando tus propios datos, no respuestas genéricas sacadas de internet.",
+      "Es para el negocio que ya necesita ordenar clientes y conversaciones en un CRM, y que además recibe suficientes preguntas repetidas como para que un agente que las conteste tenga trabajo de verdad. Sin lo primero, el agente se queda sin casa; sin lo segundo, sin oficio."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Una empresa de servicios guarda en HubSpot sus clientes, sus precios y el historial de cada cuenta. Un cliente escribe preguntando lo de siempre — horarios, precios, cómo va lo suyo — y el agente responde tirando de esos datos, los de la empresa, no de una plantilla vacía.",
+      "Y aquí está el detalle que organiza todo el artículo: si la conversación queda resuelta, se cobra. Si no queda resuelta, no. El negocio no paga por intentos ni por mensajes sueltos: paga $0,50 cuando el cliente se va con su respuesta. Eso cambia cómo se evalúa la herramienta, porque el gasto va atado al resultado, no al volumen de ruido."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "La base es gratuita: el <b>CRM es gratis</b>. Los puestos de pago de su ficha parten de <b>Starter, desde $7 al mes con pago anual</b>.",
+      "Aparte va el agente: <b>$0,50 por conversación resuelta</b>, según consta en la descripción de su ficha. Son dos conceptos distintos — el puesto y la resolución — y conviene no mezclarlos al hacer cuentas."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera letra pequeña está en el «desde» y en el «con pago anual» de los $7: es el suelo de los puestos Starter pagando el año, por puesto. Tu cifra real depende de cuántos puestos necesites, y la ficha no publica más escalones, así que no los damos por supuestos.",
+      "La segunda es la otra cara del modelo que nos gusta: cobrar por resolución es justo, pero las resoluciones se suman. Un negocio con muchas preguntas frecuentes resueltas al mes pagará muchas veces esos $0,50. No es una trampa — es justo el trato —, pero entra en la cuenta mensual igual que cualquier otro coste por uso."
+    ]}
+  ],
+  official:"Web oficial · hubspot.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 11 · Sales & CRM · Full article',
+  vlabel:"The verdict",
+  verdict:"What's interesting about HubSpot isn't its AI: it's that its customer agent only charges when the conversation is resolved.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "HubSpot is, at its base, a CRM — the place where a business keeps its contacts and its sales — and Breeze, with its Agent Hub, is its AI layer. Its listing says it up front: what's interesting here isn't the AI, it's how it charges for it. Still, it's worth understanding what it does: its customer agent answers frequently asked questions using your own data, not generic answers pulled from the internet.",
+      "It's for the business that already needs to get its clients and conversations organized in a CRM, and that also gets enough repeat questions for an agent answering them to have real work to do. Without the first, the agent has no home; without the second, no job."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A service company keeps its clients, its prices and each account's history in HubSpot. A client writes in asking the usual — hours, prices, how their thing is going — and the agent answers drawing on that data, the company's own, not an empty template.",
+      "And here is the detail this whole article hangs on: if the conversation is resolved, you're charged. If it isn't resolved, you aren't. The business doesn't pay for attempts or for loose messages: it pays $0.50 when the client leaves with their answer. That changes how you judge the tool, because the spend is tied to the outcome, not to the volume of noise."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "The base is free: the <b>CRM is free</b>. The paid seats in its listing start with <b>Starter, from $7 a month billed annually</b>.",
+      "The agent is separate: <b>$0.50 per resolved conversation</b>, as stated in its listing's description. They are two different charges — the seat and the resolution — and it's worth not mixing them when you do the maths."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit of fine print is in the “from” and the “billed annually” attached to the $7: it's the floor for Starter seats when paying for the year, per seat. Your real figure depends on how many seats you need, and the listing doesn't publish further tiers, so we don't assume them.",
+      "The second is the other side of the model we like: charging per resolution is fair, but resolutions add up. A business with lots of FAQs resolved in a month will pay that $0.50 many times over. It isn't a trap — it's exactly the deal — but it belongs in the monthly maths like any other usage cost."
+    ]}
+  ],
+  official:"Official site · hubspot.com",
+  visit:"Visit"
+}},
+intercom: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 12 · Atención al cliente · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Fin responde al instante las mismas veinte preguntas de cada semana, en el chat, el correo y WhatsApp.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Intercom Fin es un agente de IA de atención al cliente: Fin es el agente, Intercom es la plataforma donde vive. Su ficha lo presenta sin adornos, desde el problema: una tienda online, un servicio, y las mismas veinte preguntas repitiéndose cada semana hasta ocupar el día de quien las contesta.",
+      "Es para ese negocio, el que ya sabe cuáles son sus veinte preguntas porque las responde en bucle. Si tus clientes casi nunca escriben, Fin no tiene materia prima. Si escriben siempre lo mismo, la tiene de sobra."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "La ficha trae las tres preguntas de muestra, y son las de cualquier negocio: «¿dónde está mi pedido?», «¿cuánto cuesta?», «¿cómo cambio mi cita?». Un martes cualquiera entran las tres — una por el chat de la web, otra por correo, otra por WhatsApp — y Fin las responde al instante en los tres canales, sin que nadie del equipo interrumpa lo que estaba haciendo.",
+      "El efecto que se nota no es que el negocio conteste «con IA»: es que la persona que antes vivía pegada a esas respuestas recupera su mañana, y el cliente no espera a que haya alguien disponible para una pregunta que tiene una respuesta clara y corta."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Fin se cobra por resultado: <b>$0,99 por resolución</b>. Y la plataforma sobre la que trabaja parte de <b>$29 por asiento y mes</b>.",
+      "Son los dos precios de su ficha, y son dos conceptos: el agente cobra cuando resuelve, la plataforma cobra por asiento. Para comparar con otras opciones de esta lista hay que sumar las dos piezas, no quedarse con la más pequeña."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La letra pequeña de Fin es aritmética: $0,99 por resolución parece poco, y lo es, una vez. Pero un negocio que resuelve cientos de conversaciones al mes paga cientos de veces esa cifra. El modelo es honesto — pagas cuando el cliente queda atendido — y aun así entra en el presupuesto como un coste que crece con tu volumen.",
+      "Y no olvides la segunda pieza: los $29 son «desde» y por asiento. La plataforma no es un pago único ni viene incluida en el precio por resolución; es la base sobre la que Fin trabaja, y cada persona del equipo con asiento la suma a la factura."
+    ]}
+  ],
+  official:"Web oficial · intercom.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 12 · Customer support · Full article',
+  vlabel:"The verdict",
+  verdict:"Fin instantly answers the same twenty questions every week, across chat, email and WhatsApp.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Intercom Fin is an AI customer support agent: Fin is the agent, Intercom is the platform it lives on. Its listing presents it without decoration, starting from the problem: an online store, a service business, and the same twenty questions repeating every week until they take over the day of whoever answers them.",
+      "It's for that business — the one that already knows what its twenty questions are because it answers them on a loop. If your clients hardly ever write in, Fin has no raw material. If they always write the same thing, it has plenty."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The listing carries the three sample questions, and they're every business's questions: “where's my order?”, “how much does it cost?”, “how do I change my appointment?” On any given Tuesday all three come in — one through the website chat, one by email, one on WhatsApp — and Fin answers them instantly across all three channels, without anyone on the team stopping what they were doing.",
+      "The effect you notice isn't that the business now replies “with AI”: it's that the person who used to live glued to those answers gets their morning back, and the client doesn't wait for someone to be free for a question that has a clear, short answer."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Fin charges per result: <b>$0.99 per resolution</b>. And the platform it works on starts at <b>$29 per seat per month</b>.",
+      "Those are the two prices in its listing, and they are two different things: the agent charges when it resolves, the platform charges per seat. To compare it with other options on this list you have to add both pieces together, not keep just the smaller one."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "Fin's fine print is arithmetic: $0.99 per resolution sounds small, and it is — once. But a business resolving hundreds of conversations a month pays that figure hundreds of times. The model is honest — you pay when the client is taken care of — and it still belongs in the budget as a cost that grows with your volume.",
+      "And don't forget the second piece: the $29 is “from,” and per seat. The platform isn't a one-off payment, and it isn't included in the per-resolution price; it's the base Fin works on, and every team member with a seat adds it to the bill."
+    ]}
+  ],
+  official:"Official site · intercom.com",
+  visit:"Visit"
+}},
+fireflies: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 13 · Reuniones · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Fireflies entra solo a tu llamada, transcribe en español y te deja el resumen con los acuerdos y las tareas.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Fireflies es un asistente de reuniones: se une por su cuenta a tus llamadas de Zoom, Meet o Teams, transcribe lo que se habla — entiende más de 100 idiomas, y el español está entre ellos — y al terminar te deja el resumen con lo acordado. No es una grabadora con subtítulos: su producto es el papel que queda cuando cuelgas.",
+      "Es para quien tiene reuniones con clientes o proveedores y sale de ellas sin acta: el dueño que acuerda tres cosas en una llamada y a la semana siguiente discute cuál era la segunda. Si tus llamadas no dejan rastro escrito, este es tu problema y esta es la herramienta que lo ataca."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Un negocio pequeño tiene su llamada semanal con un cliente importante. Nadie toma notas, porque Fireflies ya entró solo a la llamada, como entra siempre. Al colgar, el equipo no tiene una grabación de una hora que nadie va a oír: tiene el resumen, con los acuerdos en una lista y las tareas que salieron de la conversación.",
+      "El viernes, cuando toca cumplir lo acordado, nadie rebusca en su memoria ni en un chat: se abre el resumen de la llamada y ahí está, en el orden en que se dijo. Esa es la diferencia práctica entre grabar reuniones y salir de ellas con un papel útil."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Se puede empezar <b>gratis, con resúmenes limitados</b>. El plan de pago de su ficha es <b>Pro: $10 por asiento y mes con pago anual, o $18 si pagas mes a mes</b>.",
+      "Como en otras fichas de la lista, el precio bueno es el anual y el de la ficha lo dice en el mismo renglón: $10 pagando el año, $18 pagando el mes. Los dos números son el precio; quedarse solo con el primero es leer la mitad."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera letra pequeña está en el plan gratis, y la ficha la escribe tal cual: resúmenes <b>limitados</b>. Sirve para comprobar que la transcripción en español funciona con tus llamadas reales; no está pensado como el plan sobre el que organizar todas tus reuniones para siempre.",
+      "La segunda es la brecha entre los dos precios de Pro: de $10 a $18 por asiento hay casi el doble, y la única diferencia es cómo pagas. Súmale que es por asiento — cada persona que lo usa, suma — y la cuenta seria se hace así: asientos por precio, con el modo de pago que de verdad vayas a usar."
+    ]}
+  ],
+  official:"Web oficial · fireflies.ai",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 13 · Meetings · Full article',
+  vlabel:"The verdict",
+  verdict:"Fireflies joins your call on its own, transcribes in Spanish, and leaves you the summary with the decisions and the tasks.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Fireflies is a meeting assistant: it joins your Zoom, Meet or Teams calls on its own, transcribes what's said — it understands over 100 languages, and Spanish is among them — and when you hang up it leaves you the summary with what was agreed. It isn't a recorder with subtitles: its product is the document that remains when the call ends.",
+      "It's for anyone who has meetings with clients or suppliers and comes out of them without minutes: the owner who agrees three things on a call and the following week argues about what the second one was. If your calls leave no written trace, that's your problem, and this is the tool that tackles it."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A small business has its weekly call with an important client. Nobody takes notes, because Fireflies already joined the call on its own, as it always does. When they hang up, the team doesn't have an hour-long recording nobody will ever play: it has the summary, with the decisions in a list and the tasks that came out of the conversation.",
+      "On Friday, when it's time to deliver what was agreed, nobody digs through their memory or a chat: they open the call summary and there it is, in the order it was said. That's the practical difference between recording meetings and coming out of them with a useful document."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "You can start <b>free, with limited summaries</b>. The paid plan in its listing is <b>Pro: $10 per seat per month billed annually, or $18 if you pay month to month</b>.",
+      "As in other listings here, the good price is the annual one, and the listing says so on the same line: $10 paying for the year, $18 paying monthly. Both numbers are the price; keeping only the first is reading half of it."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit of fine print is in the free plan, and the listing writes it as-is: <b>limited</b> summaries. It's there to check that the Spanish transcription works with your real calls; it isn't meant as the plan you organize all your meetings around forever.",
+      "The second is the gap between Pro's two prices: from $10 to $18 per seat is nearly double, and the only difference is how you pay. Add that it's per seat — every person who uses it adds up — and the serious maths goes like this: seats times price, with the billing style you're actually going to use."
+    ]}
+  ],
+  official:"Official site · fireflies.ai",
+  visit:"Visit"
+}},
+durable: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 14 · Páginas web · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Si tu negocio todavía no tiene web, Durable te la deja en pie en medio minuto — y las reservas y las facturas viven en el mismo panel.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Durable genera la web de un negocio en unos 30 segundos a partir de unas preguntas. Hasta ahí ya sería noticia para quien lleva años diciendo «tengo que hacer la web», pero su ficha añade lo que lo distingue: no es solo la página. Trae CRM, reservas, facturación y respuestas a clientes en el mismo panel, así que la web nace conectada al resto del negocio en vez de quedarse como un escaparate suelto.",
+      "Es para el negocio pequeño que aún no tiene casa propia en internet — el que depende de una red social y del teléfono para todo — y que necesita, a la vez, un sitio donde le encuentren y una manera ordenada de atender lo que entre por ese sitio."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Piensa en una empresa pequeña de servicios a domicilio que trabaja por recomendaciones y nunca ha tenido web. Una tarde responde a las preguntas que le hace Durable y, en unos 30 segundos, tiene una página con la que por fin puede decir «míralo en mi web» en vez de mandar fotos sueltas por WhatsApp.",
+      "Lo interesante viene después de ese primer minuto. El cliente que entra por la web puede reservar desde ahí, la factura del trabajo sale del mismo panel y ese cliente queda guardado en el CRM, con las respuestas a sus mensajes también en el mismo sitio. No hay cuatro herramientas que aprender: hay un panel, y la web es su puerta."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Empezar no cuesta nada, con matices que contamos en la letra pequeña: el plan <b>gratis es $0, solo vista previa, con el CRM hasta 10 clientes</b>. El plan de pago de su ficha es <b>Launch: $25/mes, o $22/mes con pago anual</b>.",
+      "Esos son los únicos precios verificados que publicamos. Si tu negocio crece y necesitas más, confirma el escalón que te toca en su web oficial: la ficha no trae más planes y no los suponemos."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera está en dos palabras de la propia ficha: «solo vista previa». El plan gratis te deja ver cómo quedaría tu web y probar el CRM con hasta 10 clientes, pero está planteado como eso, una vista previa para decidir, no como la versión con la que operar para siempre. Quien lea «gratis $0» y entienda «web completa sin pagar» está leyendo la mitad.",
+      "La segunda es la de casi toda esta lista: los $22 de Launch existen a cambio de pagar el año. Mes a mes son $25. La diferencia es pequeña, pero es la condición que acompaña al número que se anuncia."
+    ]}
+  ],
+  official:"Web oficial · durable.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 14 · Websites · Full article',
+  vlabel:"The verdict",
+  verdict:"If your business still has no website, Durable puts one up in about half a minute — and bookings and invoices live in the same dashboard.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Durable generates a business website in about 30 seconds from a few questions. That alone would be news for anyone who has spent years saying “I really need to get the website done,” but its listing adds what sets it apart: it isn't just the page. It includes CRM, bookings, invoicing and customer replies in the same dashboard, so the website is born connected to the rest of the business instead of sitting there as a loose shop window.",
+      "It's for the small business that still has no home of its own on the internet — the one that depends on a social profile and the phone for everything — and that needs, at the same time, a place to be found and an orderly way to handle whatever comes in through it."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "Picture a small home-services company that runs on referrals and has never had a website. One afternoon it answers the questions Durable asks and, in about 30 seconds, has a page it can finally point to — “it's on my website” — instead of sending loose photos over WhatsApp.",
+      "The interesting part comes after that first minute. The client who arrives through the website can book right there, the job's invoice comes out of the same dashboard, and that client is kept in the CRM, with the replies to their messages in the same place too. There aren't four tools to learn: there's one dashboard, and the website is its front door."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Starting costs nothing, with caveats we spell out in the fine print: the <b>free plan is $0, preview only, with the CRM up to 10 clients</b>. The paid plan in its listing is <b>Launch: $25/month, or $22/month billed annually</b>.",
+      "Those are the only verified prices we publish. If your business grows and you need more, confirm the tier that applies to you on its official site: the listing carries no further plans and we don't assume them."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit is in two words from the listing itself: “preview only.” The free plan lets you see how your website would look and try the CRM with up to 10 clients, but it's set up as exactly that — a preview to help you decide, not the version you run on forever. Anyone who reads “free $0” and understands “full website without paying” is reading half of it.",
+      "The second is the one in almost every entry on this list: Launch's $22 exists in exchange for paying for the year. Month to month it's $25. The difference is small, but it's the condition that comes with the advertised number."
+    ]}
+  ],
+  official:"Official site · durable.com",
+  visit:"Visit"
+}},
+tidio: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 15 · Atención al cliente · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Tidio pone a Lyro, su agente de IA, a contestar donde tus clientes ya escriben: tu web, WhatsApp, Instagram y Messenger.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Tidio es un chat en vivo para tu negocio con una pieza que lo cambia todo: Lyro, su agente de IA, que contesta por ti. Y no contesta solo en el chat de la web: según su ficha, trabaja también en WhatsApp, Instagram y Messenger, con una bandeja compartida para el equipo y automatizaciones para lo que se repite.",
+      "Es para el negocio que atiende clientes por tres o cuatro sitios a la vez y siente que se le escapan mensajes entre canal y canal. Si tus clientes te escriben siempre por el mismo sitio y los llevas al día, Lyro tiene poco que hacer. Si cada mañana abres cuatro aplicaciones con preguntas de anoche, tiene trabajo de sobra."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Una tienda pequeña vende por su web y anuncia en Instagram. A las diez de la noche, con la tienda cerrada, entran dos mensajes casi a la vez: uno por el chat de la web y otro por Instagram, preguntando por lo mismo. Lyro contesta en los dos canales en el momento, sin que nadie tenga el móvil en la mano.",
+      "A la mañana siguiente, el equipo no entra a ciegas en cada aplicación: abre la bandeja compartida y ve juntas las conversaciones de la web, WhatsApp, Instagram y Messenger. El cliente escribió donde quiso; el negocio lo lee todo en un solo sitio. Esa es la mitad del valor, y la otra mitad son las automatizaciones para que lo repetido no dependa de que alguien esté mirando."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Tidio se puede usar <b>gratis, con 50 conversaciones al mes</b>. El primer plan de pago de su ficha es <b>Starter, a $29/mes</b>.",
+      "Y fíjate en la unidad, porque aquí manda ella: conversaciones. No usuarios ni mensajes sueltos. Cincuenta conversaciones es el tamaño del plan gratis, y con esa misma vara se mide lo que venga después."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "El techo del plan gratis está escrito en la ficha y no hay que buscarlo: 50 conversaciones al mes. Para un negocio que empieza a atender por chat alcanza para probar a Lyro con clientes reales; para uno que ya recibe preguntas a diario, ese contador se puede agotar antes de que acabe el mes, y entonces la conversación pasa a ser la de Starter.",
+      "De Starter, la ficha publica el suelo: $29/mes. No publicamos escalones superiores porque no constan en la ficha; si tu volumen pide más, el número que te aplica se confirma en su web oficial, no en una suposición nuestra."
+    ]}
+  ],
+  official:"Web oficial · tidio.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 15 · Customer support · Full article',
+  vlabel:"The verdict",
+  verdict:"Tidio puts Lyro, its AI agent, answering where your clients already write: your website, WhatsApp, Instagram and Messenger.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Tidio is live chat for your business with one piece that changes everything: Lyro, its AI agent, which replies for you. And it doesn't only reply in the website chat: according to its listing, it also works on WhatsApp, Instagram and Messenger, with a shared inbox for the team and automations for whatever keeps repeating.",
+      "It's for the business that serves clients across three or four places at once and feels messages slipping away between channels. If your clients always write through the same place and you're on top of them, Lyro has little to do. If every morning you open four apps full of last night's questions, it has plenty."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A small shop sells through its website and advertises on Instagram. At ten at night, with the shop closed, two messages come in almost at once: one through the website chat and one on Instagram, asking the same thing. Lyro answers on both channels right away, with nobody holding a phone.",
+      "The next morning, the team doesn't dive blind into each app: it opens the shared inbox and sees the conversations from the website, WhatsApp, Instagram and Messenger together. The client wrote wherever they liked; the business reads it all in one place. That's half the value — the other half is the automations, so the repetitive stuff doesn't depend on someone watching."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Tidio can be used <b>free, with 50 conversations a month</b>. The first paid plan in its listing is <b>Starter, at $29/month</b>.",
+      "And notice the unit, because it rules here: conversations. Not users, not loose messages. Fifty conversations is the size of the free plan, and everything after it is measured with the same stick."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The free plan's ceiling is written in the listing, no hunting required: 50 conversations a month. For a business just starting to serve clients by chat, it's enough to try Lyro with real customers; for one already getting questions daily, that counter can run out before the month does, and then the conversation becomes the Starter one.",
+      "For Starter, the listing publishes the floor: $29/month. We don't publish higher tiers because they aren't in the listing; if your volume needs more, the number that applies to you gets confirmed on its official site, not guessed by us."
+    ]}
+  ],
+  official:"Official site · tidio.com",
+  visit:"Visit"
+}},
+gamma: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 16 · Diseño · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Gamma convierte un texto en una presentación decente en un minuto: la propuesta sale hoy, no después de una tarde peleando con PowerPoint.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Gamma hace una cosa muy concreta y su ficha la cuenta en una frase: pegas un texto y en un minuto tienes una presentación decente, exportable a PowerPoint o PDF. No promete convertirte en diseñador; promete que el documento que tienes que entregar deje de depender de tu pelea con las diapositivas.",
+      "Su público lo nombra la propia ficha: el autónomo y la consultora pequeña. Gente que sabe hacer su trabajo, cuya propuesta es buena, pero que pierde puntos — y tardes enteras — en cómo se ve al presentarla. Si entregar propuestas con buena pinta forma parte de tu semana, esta herramienta habla de ti."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Una consultora pequeña tiene que mandar una propuesta mañana por la mañana. El contenido ya existe: está en sus notas, en el correo que le escribió al cliente, en el presupuesto que tiene en la cabeza. Lo pega en Gamma y en un minuto tiene la presentación montada, con una pinta que a mano le habría costado la tarde entera.",
+      "Después elige la salida según el cliente: exporta a PDF y lo manda tal cual, o exporta a PowerPoint si quiere retocar algo en la herramienta de siempre. El trabajo que desaparece no es pensar la propuesta — eso sigue siendo suyo —, es maquetarla."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Gamma se puede probar <b>gratis, con 400 créditos únicos</b>. El plan de pago de su ficha es <b>Plus: $9/mes con pago anual</b>.",
+      "Quédate con el adjetivo de los créditos, porque es el centro de este artículo: únicos. No es una cantidad que se renueve cada mes, y de ahí sale directamente la letra pequeña."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La ficha de Gamma en la lista ya lo avisa en forma de cita, y aquí lo repetimos sin suavizar: el plan gratis es una prueba con fecha de caducidad, porque los 400 créditos no se renuevan. Sirven para hacer tus primeras presentaciones y comprobar si el resultado te convence; el día que se acaben, se acabaron, y la decisión pasa a ser la de Plus.",
+      "Y Plus tiene la condición habitual de esta lista: los $9/mes son con pago anual. Es el precio que consta en la ficha, con su condición escrita al lado; no publicamos una cifra mensual distinta porque no consta, así que si prefieres pagar mes a mes, confirma tu número en su web oficial."
+    ]}
+  ],
+  official:"Web oficial · gamma.app",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 16 · Design · Full article',
+  vlabel:"The verdict",
+  verdict:"Gamma turns a piece of text into a decent presentation in a minute: the proposal goes out today, not after an afternoon fighting PowerPoint.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Gamma does one very concrete thing, and its listing says it in a single sentence: you paste in some text and in a minute you have a decent presentation, exportable to PowerPoint or PDF. It doesn't promise to turn you into a designer; it promises that the document you have to deliver stops depending on your fight with slides.",
+      "Its audience is named by the listing itself: the freelancer and the small consultancy. People who know their work, whose proposal is good, but who lose points — and whole afternoons — on how it looks when presented. If sending good-looking proposals is part of your week, this tool is about you."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A small consultancy has to send a proposal tomorrow morning. The content already exists: it's in their notes, in the email they wrote to the client, in the quote they have in their head. They paste it into Gamma and in a minute the presentation is assembled, looking the way it would have taken them all afternoon to do by hand.",
+      "Then they choose the output per client: export to PDF and send it as-is, or export to PowerPoint if they want to tweak something in their usual tool. The work that disappears isn't thinking up the proposal — that's still theirs — it's laying it out."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Gamma can be tried <b>free, with 400 one-time credits</b>. The paid plan in its listing is <b>Plus: $9/month billed annually</b>.",
+      "Hold on to the adjective attached to those credits, because it's the centre of this article: one-time. It isn't an amount that renews every month, and the fine print follows directly from that."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "Gamma's entry in the list already warns about this as a pull quote, and we repeat it here unsweetened: the free plan is a trial with an expiry date, because the 400 credits don't renew. They're enough to make your first presentations and check whether the result convinces you; the day they run out, they're gone, and the decision becomes the Plus one.",
+      "And Plus carries this list's usual condition: the $9/month is billed annually. That's the price in the listing, with its condition written beside it; we don't publish a different monthly figure because there isn't one on record, so if you'd rather pay month to month, confirm your number on its official site."
+    ]}
+  ],
+  official:"Official site · gamma.app",
+  visit:"Visit"
+}},
+calendly: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 17 · Reservas y citas · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Calendly acaba con el ir y venir de correos para cuadrar una cita: mandas tu enlace y el cliente reserva solo.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Calendly es la herramienta de reservas y citas de esta lista, y entró en ella — lo dice su ficha — porque resuelve algo muy concreto: el ir y venir de correos para cuadrar una cita. No es un calendario más bonito; es quitar de en medio la negociación de horarios por correo, ese «¿te viene bien el martes?», «el martes no, ¿el jueves?» que nadie cobra y todo el mundo paga en tiempo.",
+      "Es para cualquier negocio que trabaje con citas: consultas, visitas, llamadas, sesiones. Si tu semana se agenda con clientes y cada cita cuesta tres correos, el problema que ataca Calendly es el tuyo, descrito tal cual."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Un profesional con agenda de clientes termina una primera llamada y, en vez de abrir el intercambio de correos de siempre, manda su enlace de Calendly. El cliente entra, elige el hueco que le viene bien y reserva solo, sin esperar respuesta de nadie.",
+      "A partir de ahí, lo que antes hacía el dueño a mano ocurre solo: los recordatorios salen automáticos — así que el cliente no se olvida — y la cita cae en su calendario sin que tenga que copiarla. La cita existe, está confirmada y está en su sitio, y nadie ha escrito «¿te viene bien…?» ni una sola vez."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Calendly tiene plan <b>gratis, con 1 tipo de evento</b>. El de pago de su ficha es <b>Standard: $10 por asiento y mes, con pago anual</b>.",
+      "Dos unidades a las que prestar atención: tipos de evento en el plan gratis — uno — y asientos en el de pago. Con esas dos varas se mide todo lo demás."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera es ese «1 tipo de evento» del plan gratis. Si todo tu negocio se agenda con una sola clase de cita, te basta y te sobra. Si necesitas distinguir — primera visita, seguimiento, llamada corta, sesión larga — el plan gratis se te queda corto por diseño, no por accidente, y la conversación pasa a ser la de Standard.",
+      "La segunda viene en dos partes que ya conoces de esta lista: los $10 son por asiento — cada persona con agenda, suma — y con pago anual. Y hay una tercera que consta en el registro de este directorio: en Calendly, Notetaker y Callie son complementos de pago, no parte del paquete base. Si los quieres, van aparte."
+    ]}
+  ],
+  official:"Web oficial · calendly.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 17 · Bookings & appointments · Full article',
+  vlabel:"The verdict",
+  verdict:"Calendly ends the email back-and-forth to schedule an appointment: you send your link and the client books on their own.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Calendly is the bookings and appointments tool on this list, and it earned its place — its listing says so — because it solves something very concrete: the back-and-forth of emails to schedule an appointment. It isn't a prettier calendar; it's removing the schedule negotiation by email, that “does Tuesday work for you?”, “not Tuesday, how about Thursday?” that nobody bills for and everybody pays for in time.",
+      "It's for any business that works by appointment: consultations, visits, calls, sessions. If your week is booked with clients and every appointment costs three emails, the problem Calendly tackles is yours, described exactly."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A professional with a client calendar finishes a first call and, instead of opening the usual email exchange, sends their Calendly link. The client comes in, picks the slot that suits them and books on their own, without waiting for anyone to reply.",
+      "From there, what the owner used to do by hand happens by itself: the reminders go out automatically — so the client doesn't forget — and the appointment lands in their calendar without anyone copying it over. The appointment exists, it's confirmed and it's in its place, and nobody has typed “does this time work…?” even once."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Calendly has a <b>free plan, with 1 event type</b>. The paid plan in its listing is <b>Standard: $10 per seat per month, billed annually</b>.",
+      "Two units worth watching: event types on the free plan — one — and seats on the paid one. Everything else is measured with those two sticks."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first is that “1 event type” on the free plan. If your whole business is booked with a single kind of appointment, it's more than enough. If you need to tell them apart — first visit, follow-up, short call, long session — the free plan falls short by design, not by accident, and the conversation becomes the Standard one.",
+      "The second comes in two parts you already know from this list: the $10 is per seat — every person with a calendar adds up — and billed annually. And there's a third, recorded in this directory's log: in Calendly, Notetaker and Callie are paid add-ons, not part of the base package. If you want them, they're separate."
+    ]}
+  ],
+  official:"Official site · calendly.com",
+  visit:"Visit"
+}},
+otter: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 18 · Reuniones · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Otter entra solo a tus reuniones, transcribe la conversación también en español y te deja el resumen con las tareas: tú a hablar, él a tomar notas.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Otter.ai es un asistente de reuniones, y su ficha lo presenta sin rodeos: pariente cercano de Fireflies. Hace su mismo trabajo de fondo — entrar solo a la llamada de Zoom, Meet o Teams, transcribir la conversación y dejar un resumen con tareas —, así que su sitio en la lista no se gana por hacer algo distinto, sino por ser la otra manera de resolver el mismo problema.",
+      "Es para quien vive de reunión en reunión y necesita que quede constancia escrita de lo hablado sin dedicar a una persona a tomar notas. Y con un matiz que su ficha subraya: transcribe también en español, que es justo donde muchas herramientas de este tipo flaquean para un negocio que trabaja en este idioma."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Un dueño de negocio encadena dos llamadas con clientes en la misma mañana, las dos en español, las dos con acuerdos. No abre ningún programa ni pulsa nada: Otter entra solo a cada llamada de Zoom, Meet o Teams, como hace siempre, y transcribe mientras la conversación ocurre.",
+      "Al terminar la mañana no tiene dos grabaciones que nadie va a escuchar enteras: tiene dos resúmenes, cada uno con sus tareas. Antes de la siguiente llamada abre el resumen, ve qué se comprometió a hacer y para cuándo, y entra sabiendo dónde quedó la cosa. El papel que antes dependía de su memoria ahora existe, y está escrito."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Otter se puede usar <b>gratis, con 300 minutos al mes</b>. El plan de pago de su ficha es <b>Pro: $8,33/mes con pago anual</b>.",
+      "Aquí la unidad que manda es el minuto. Ni asientos ni resúmenes en el titular de la ficha: minutos de reunión transcritos al mes. Toda la cuenta de si te basta el plan gratis se hace dividiendo tus reuniones entre esos 300."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera es ese contador: 300 minutos al mes dan para probar la herramienta con reuniones de verdad y para un ritmo tranquilo de llamadas. Pero un negocio con varias reuniones largas cada semana se los come sin darse cuenta, y a mitad de mes la pregunta deja de ser si Otter funciona — eso ya lo comprobó — y pasa a ser la de Pro.",
+      "La segunda es el modo de pago del precio publicado: los $8,33 son con pago anual. La ficha no publica una cifra mensual alternativa, y no la inventamos: si quieres pagar mes a mes, tu número se confirma en su página oficial de precios, que es el enlace de esta misma ficha."
+    ]}
+  ],
+  official:"Web oficial · otter.ai",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 18 · Meetings · Full article',
+  vlabel:"The verdict",
+  verdict:"Otter joins your meetings on its own, transcribes the conversation in Spanish too, and leaves the summary with the tasks: you do the talking, it takes the notes.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Otter.ai is a meeting assistant, and its listing presents it plainly: a close relative of Fireflies. It does the same underlying job — joining the Zoom, Meet or Teams call on its own, transcribing the conversation and leaving a summary with tasks — so its place on this list isn't earned by doing something different, but by being the other way to solve the same problem.",
+      "It's for anyone who lives from meeting to meeting and needs a written record of what was said without dedicating a person to note-taking. And with one nuance its listing underlines: it transcribes in Spanish too, which is exactly where many tools of this kind fall short for a business that works in that language."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A business owner chains two client calls in the same morning, both in Spanish, both ending in agreements. They open no program and press nothing: Otter joins each Zoom, Meet or Teams call on its own, as it always does, and transcribes while the conversation happens.",
+      "By the end of the morning they don't have two recordings nobody will ever listen to in full: they have two summaries, each with its tasks. Before the next call they open the summary, see what they committed to and by when, and walk in knowing where things stand. The record that used to depend on their memory now exists, in writing."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Otter can be used <b>free, with 300 minutes a month</b>. The paid plan in its listing is <b>Pro: $8.33/month billed annually</b>.",
+      "Here the unit that rules is the minute. Not seats, not summaries in the listing's headline: minutes of transcribed meetings per month. The whole question of whether the free plan is enough gets answered by dividing your meetings into those 300."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first is that counter: 300 minutes a month is enough to try the tool on real meetings and to cover a calm pace of calls. But a business with several long meetings every week will eat through them without noticing, and mid-month the question stops being whether Otter works — that's already proven — and becomes the Pro one.",
+      "The second is the billing behind the published price: the $8.33 is billed annually. The listing doesn't publish an alternative monthly figure, and we don't invent one: if you want to pay month to month, your number gets confirmed on its official pricing page, which is this listing's own link."
+    ]}
+  ],
+  official:"Official site · otter.ai",
+  visit:"Visit"
+}},
+gemini: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 19 · Asistentes · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Si tu negocio ya vive en Gmail y Google Docs, Gemini no te pide cambiar de sitio: trabaja dentro del correo y los documentos que ya usas.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Gemini en Google Workspace es el asistente de IA de Google integrado en su paquete de oficina, y con él se cierra en esta lista el grupo de los cuatro asistentes grandes. Su ficha lo dice tal cual: estaba pendiente desde la primera versión del directorio y entra ahora. Su argumento no es hacer algo que nadie más haga; es hacerlo sin salir de Gmail, de Google Docs ni de Meet.",
+      "Por eso su público se define solo: el negocio que ya vive en esas tres herramientas. Si tu correo está en Gmail, tus documentos en Docs y tus reuniones en Meet, Gemini aparece justo donde ya ocurre el trabajo. Si vives en otro ecosistema, su ventaja principal — no cambiar de sitio — no te aplica, igual que le pasaba a Copilot con el suyo."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Un lunes cualquiera, el dueño de una empresa de servicios abre Gmail y encuentra un hilo que creció durante el fin de semana: un cliente, dos presupuestos cruzados y una queja al final. En vez de leerse la cadena entera, le pide a Gemini que le resuma el hilo y le redacte la respuesta, que él retoca en un minuto y envía con el tono tranquilo que el lunes a primera hora no siempre sale solo.",
+      "Esa misma semana, en una llamada de Meet con un proveedor, no toma notas: Gemini toma las notas de la reunión. Al colgar, lo acordado queda escrito sin que nadie haya dejado de mirar la pantalla para apuntar. Nada de esto exige abrir una herramienta nueva: pasa dentro del correo y la videollamada de todos los días."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Los precios de su ficha son los de los paquetes de Google Workspace: <b>Starter, $7 por usuario y mes con pago anual</b>, y <b>Standard, $14</b>.",
+      "Son los dos escalones verificados que publicamos, y vienen con la unidad que manda en todo este directorio: por usuario. No hay un precio único para «el negocio»; hay un precio por cada persona que lo usa."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera es la multiplicación de siempre: $7 por usuario y mes suena a poco en la portada, pero una oficina de cinco personas no paga $7, paga cinco veces eso cada mes. Haz la cuenta con tu plantilla real antes de comparar este precio con el de un asistente suelto.",
+      "La segunda está en la condición que acompaña al Starter en su propia ficha: los $7 son con pago anual. Y hay una tercera, de encaje más que de precio: todo el valor de Gemini depende de que tu trabajo viva de verdad en Gmail, Docs y Meet. Si solo usas el correo y poco más, estás pagando un paquete pensado para quien vive entero dentro de él."
+    ]}
+  ],
+  official:"Web oficial · workspace.google.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 19 · Assistants · Full article',
+  vlabel:"The verdict",
+  verdict:"If your business already lives in Gmail and Google Docs, Gemini doesn't ask you to move anywhere: it works inside the email and documents you already use.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Gemini in Google Workspace is Google's AI assistant built into its office suite, and with it this list completes its group of the four big assistants. Its listing says so plainly: it had been pending since the first version of the directory and joins now. Its argument isn't doing something nobody else does; it's doing it without leaving Gmail, Google Docs or Meet.",
+      "That's why its audience defines itself: the business that already lives in those three tools. If your email is in Gmail, your documents in Docs and your meetings in Meet, Gemini shows up exactly where the work already happens. If you live in another ecosystem, its main advantage — not switching tools — doesn't apply to you, just as Copilot's didn't outside its own."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "On any given Monday, the owner of a service business opens Gmail and finds a thread that grew over the weekend: one client, two quotes crossing each other and a complaint at the end. Instead of reading the whole chain, they have Gemini summarize the thread and draft the reply, which they adjust in a minute and send with the calm tone that first thing on a Monday doesn't always come out on its own.",
+      "That same week, on a Meet call with a supplier, they take no notes: Gemini takes the meeting notes. When they hang up, what was agreed is in writing without anyone having looked away from the screen to jot it down. None of this requires opening a new tool: it happens inside the email and video calls of every day."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "The prices in its listing are those of the Google Workspace plans: <b>Starter, $7 per user per month billed annually</b>, and <b>Standard, $14</b>.",
+      "Those are the two verified tiers we publish, and they come with the unit that rules this whole directory: per user. There is no single price for “the business”; there is a price for every person who uses it."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first is the usual multiplication: $7 per user per month sounds small on the homepage, but a five-person office doesn't pay $7, it pays five times that every month. Do the maths with your real headcount before comparing this price with a standalone assistant's.",
+      "The second is in the condition attached to Starter in its own listing: the $7 is billed annually. And there's a third, about fit rather than price: all of Gemini's value depends on your work genuinely living in Gmail, Docs and Meet. If you only use the email and little else, you're paying for a suite designed for people who live entirely inside it."
+    ]}
+  ],
+  official:"Official site · workspace.google.com",
+  visit:"Visit"
+}},
+loom: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 20 · Vídeo · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Loom sirve para grabar una vez lo que explicas veinte veces por semana, y mandarlo en vídeo en vez de repetirlo.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Loom es una herramienta de vídeo pensado para explicaciones: grabas tu pantalla y tu voz contando algo, y lo compartes con un enlace, sin reunión ni llamada. Su ficha no lo define con tecnicismos; lo define contando: cuenta las veces que explicas lo mismo en una semana. Cómo se usa esto, qué cubre aquello, por qué el presupuesto dice eso. Veinte, fácil.",
+      "Es para quien se reconoce en esa cuenta. El dueño o la persona del equipo que se ha convertido en el manual de instrucciones humano del negocio: si tu voz es la que responde siempre la misma explicación, Loom te propone grabarla una vez y que el vídeo haga el resto de las veces."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Una empresa de servicios manda presupuestos cada semana, y cada presupuesto trae la misma llamada de diez minutos: el cliente preguntando por qué dice eso, qué cubre y qué no. La tercera vez que pasa, el dueño se graba en Loom recorriendo un presupuesto de ejemplo, partida por partida, explicándolo como lo haría por teléfono.",
+      "A partir de ahí, el vídeo viaja pegado a cada presupuesto que sale. El cliente lo mira cuando quiere, a su hora, y la llamada — si la hay — ya no es para explicar lo básico: es para cerrar. Lo mismo sirve hacia dentro: la explicación de cómo se usa una herramienta interna se graba una vez y cada persona nueva la recibe en vídeo, no en una sesión repetida del jefe."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Loom se puede usar <b>gratis, con 25 vídeos de hasta 5 minutos</b>. El plan de pago de su ficha es <b>Business, a $18/mes</b>.",
+      "Fíjate en que el plan gratis trae dos techos a la vez, y los dos están en la ficha: cuántos vídeos (25) y cuánto puede durar cada uno (5 minutos). Con esas dos cifras se mide si el gratis te alcanza."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera letra pequeña es ese doble techo. Veinticinco vídeos parece mucho hasta que la explicación de cada semana empieza a ser un vídeo nuevo; y cinco minutos por vídeo alcanza para una explicación directa, pero no para la sesión larga que a veces hace falta. El plan gratis está bien para descubrir si tu negocio explica en vídeo de verdad o solo lo dice.",
+      "La segunda es más de oficio que de precio: un vídeo grabado con la explicación de hoy envejece cuando cambian tus precios o tu manera de trabajar. La ventaja de Loom — grabar una vez — se convierte en tarea de mantenimiento: de vez en cuando toca regrabar, o el vídeo empieza a explicar un negocio que ya no es el tuyo."
+    ]}
+  ],
+  official:"Web oficial · loom.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 20 · Video · Full article',
+  vlabel:"The verdict",
+  verdict:"Loom is for recording once what you explain twenty times a week, and sending it as a video instead of repeating it.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Loom is a video tool built for explanations: you record your screen and your voice talking through something, and share it with a link — no meeting, no call. Its listing doesn't define it with jargon; it defines it by counting: count how many times you explain the same thing in a week. How this is used, what that covers, why the quote says that. Twenty, easily.",
+      "It's for anyone who recognizes themselves in that count. The owner, or the team member who has become the business's human instruction manual: if your voice is the one always giving the same explanation, Loom proposes you record it once and let the video do it every other time."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A service company sends out quotes every week, and every quote brings the same ten-minute call: the client asking why it says that, what it covers and what it doesn't. The third time it happens, the owner records themselves on Loom walking through a sample quote, line by line, explaining it the way they would on the phone.",
+      "From then on, the video travels attached to every quote that goes out. The client watches it whenever they want, on their own schedule, and the call — if there is one — is no longer about explaining the basics: it's about closing. The same works inward: the explanation of how an internal tool is used gets recorded once, and every new hire receives it as a video, not as another repeated session with the boss."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Loom can be used <b>free, with 25 videos of up to 5 minutes</b>. The paid plan in its listing is <b>Business, at $18/month</b>.",
+      "Notice the free plan carries two ceilings at once, and both are in the listing: how many videos (25) and how long each one can be (5 minutes). Those two figures are how you measure whether free is enough for you."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit of fine print is that double ceiling. Twenty-five videos sounds like a lot until each week's explanation starts becoming a new video; and five minutes per video is enough for a straight explanation, but not for the long session that's sometimes needed. The free plan is fine for finding out whether your business really explains in video or just says it does.",
+      "The second is about craft more than price: a video recorded with today's explanation ages when your prices or your way of working change. Loom's advantage — record once — turns into maintenance: every so often you have to re-record, or the video starts explaining a business that is no longer yours."
+    ]}
+  ],
+  official:"Official site · loom.com",
+  visit:"Visit"
+}},
+descript: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 21 · Vídeo · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"En Descript manda el contador: antes de mirar el precio, mira las horas de material y los créditos de IA que trae cada plan.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Descript es una herramienta para trabajar el vídeo y el audio que un negocio graba, y su ficha arranca con una advertencia poco habitual: aquí manda el contador, no el precio de portada. Dentro guarda dos cifras que deciden si te sirve o te deja tirado a mitad de mes: las horas de material con las que trabajas y los créditos de IA que consumes al hacerlo.",
+      "Es para el negocio que publica vídeo o audio con regularidad — el que graba contenido cada semana y lo edita él mismo — y necesita saber si su ritmo de publicación cabe en el plan antes de enamorarse de la herramienta. Si grabas de Pascuas a Ramos, este artículo te sobra; si grabas cada semana, los dos contadores son tu tema."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Piensa en una profesional que graba un vídeo semanal para sus redes y su web: llega el material en bruto, lo trabaja en Descript y sale el vídeo listo para publicar. La primera semana todo es descubrir la herramienta. La segunda, ya aparece la pregunta que su ficha anticipa: ¿cuántas horas de material llevo este mes, y cómo van los créditos de IA?",
+      "Esa es la manera honesta de usarlo: no como una suscripción que se paga y se olvida, sino echando un ojo a los dos contadores como quien mira el depósito. Si tu ritmo es de un vídeo corto a la semana, una cosa; si grabas sesiones largas y varias piezas al mes, la cuenta cambia por completo, y conviene hacerla antes de que el mes te la haga a ti."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Descript tiene plan <b>gratis, a $0</b>. El de pago de su ficha es <b>Hobbyist: $16/mes con pago anual, o $24 si pagas mes a mes</b>.",
+      "Y aquí va la precisión que este directorio repite siempre: la ficha publica el precio del plan, pero las cifras que deciden si ese plan te basta — las horas y los créditos incluidos — son las que hay que mirar en su página oficial de precios, porque son las que su propia ficha señala como las que mandan."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera está en la brecha entre los dos precios de Hobbyist: de $16 a $24 al mes hay un 50 % más, y la única diferencia es pagar el año por adelantado o ir mes a mes. El número que se anuncia es el anual; tu factura, si pagas mensual, es la otra.",
+      "La segunda es la advertencia con la que abre su ficha, repetida sin suavizar: puedes estar en el plan correcto y quedarte sin margen a mitad de mes si tus horas de material o tus créditos de IA se acaban antes que el calendario. No es un defecto oculto — la ficha lo pone por delante —, pero significa que este precio no se evalúa solo: se evalúa contra tu volumen real de grabación."
+    ]}
+  ],
+  official:"Web oficial · descript.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 21 · Video · Full article',
+  vlabel:"The verdict",
+  verdict:"With Descript the counter rules: before you look at the price, look at the hours of material and the AI credits each plan carries.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Descript is a tool for working with the video and audio a business records, and its listing opens with an unusual warning: here the counter rules, not the headline price. Inside it keeps two numbers that decide whether it works for you or leaves you stranded mid-month: the hours of material you work with and the AI credits you burn doing it.",
+      "It's for the business that publishes video or audio regularly — the one that records content every week and edits it itself — and needs to know whether its publishing pace fits the plan before falling for the tool. If you record once in a blue moon, this article isn't for you; if you record every week, the two counters are your whole question."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "Picture a professional who records a weekly video for her socials and her website: the raw material comes in, she works it in Descript, and out comes the video ready to publish. The first week is all about discovering the tool. By the second, the question its listing anticipates shows up: how many hours of material am I at this month, and how are the AI credits doing?",
+      "That's the honest way to use it: not as a subscription you pay and forget, but keeping an eye on the two counters the way you'd watch a fuel gauge. One short video a week is one thing; long sessions and several pieces a month are a completely different sum, and it's better done by you before the month does it for you."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Descript has a <b>free plan, at $0</b>. The paid plan in its listing is <b>Hobbyist: $16/month billed annually, or $24 if you pay month to month</b>.",
+      "And here is the precision this directory always repeats: the listing publishes the plan's price, but the figures that decide whether that plan is enough for you — the hours and credits included — are the ones to check on its official pricing page, because its own listing points at them as the ones that rule."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit is in the gap between Hobbyist's two prices: from $16 to $24 a month is 50% more, and the only difference is paying the year up front or going month to month. The advertised number is the annual one; your bill, if you pay monthly, is the other.",
+      "The second is the warning its listing opens with, repeated unsweetened: you can be on the right plan and still run out of room mid-month if your hours of material or your AI credits end before the calendar does. It isn't a hidden flaw — the listing puts it up front — but it means this price isn't judged alone: it's judged against your real recording volume."
+    ]}
+  ],
+  official:"Official site · descript.com",
+  visit:"Visit"
+}},
+elevenlabs: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 22 · Voz y audio · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Cuando la voz grabada con el móvil resta más de lo que suma, ElevenLabs pone una voz cuidada en los tres sitios donde más se nota.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "ElevenLabs es la herramienta de voz y audio de esta lista: genera voces con IA para los audios que un negocio necesita sin pasar por un estudio ni depender de grabarse bien con lo que haya a mano. Su ficha lo plantea desde el problema, no desde la tecnología: hay negocios donde la voz del dueño grabada con el móvil, con la calle de fondo, resta más de lo que suma.",
+      "Es para ese negocio, el que se escucha a sí mismo en un anuncio o en un saludo grabado y nota que el audio no está a la altura del resto. No hace falta producir contenido a gran escala: basta con que tu voz — o una voz — represente a tu empresa en algún sitio que el cliente oye antes de verte."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "La ficha nombra tres sitios, y el ejemplo consiste en recorrerlos en una semana. Primero, el saludo del contestador: el cliente que llama fuera de horario oye una locución limpia en vez de una grabación hecha en el coche. Segundo, un anuncio para Instagram: el texto del anuncio se convierte en audio con una voz cuidada, sin que el dueño tenga que grabar quince tomas en la trastienda.",
+      "Tercero, el audio de un vídeo de formación para el equipo: el procedimiento que hay que enseñar a cada persona nueva deja de depender de que alguien lo grabe bien una vez. Tres piezas distintas, el mismo fondo: el negocio suena como quiere sonar, no como sonó el móvil aquel día."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "ElevenLabs se puede usar <b>gratis, a $0, con 10.000 créditos al mes</b>. El primer plan de pago de su ficha es <b>Starter: $5/mes con pago anual, o $6 si pagas mes a mes</b>.",
+      "La unidad que manda aquí es el crédito, y viene contada en la propia ficha del plan gratis: 10.000 al mes. Como en las demás herramientas que funcionan por créditos en esta lista, lo que ese número significa en la práctica depende de cuánto audio produzcas."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera es ese contador: el plan gratis no es «voz ilimitada para probar», son 10.000 créditos mensuales. Para grabar el saludo, un anuncio y probar el vídeo de formación alcanza de sobra; para una producción constante de audio, ese es el techo que empuja a Starter, y conviene conocerlo antes de organizar tus piezas sobre el plan gratuito.",
+      "La segunda es pequeña en dinero pero constante en esta lista: los $5 de Starter son con pago anual. Mes a mes, $6. Un dólar de diferencia no arruina a nadie, pero el precio de portada sigue siendo, una vez más, el del compromiso anual."
+    ]}
+  ],
+  official:"Web oficial · elevenlabs.io",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 22 · Voice & audio · Full article',
+  vlabel:"The verdict",
+  verdict:"When a voice recorded on a phone takes away more than it adds, ElevenLabs puts a polished voice in the three places where it shows most.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "ElevenLabs is the voice and audio tool on this list: it generates voices with AI for the audio a business needs, without a studio and without depending on recording yourself well with whatever is at hand. Its listing frames it from the problem, not the technology: there are businesses where the owner's voice recorded on a phone, with the street in the background, takes away more than it adds.",
+      "It's for that business — the one that hears itself in an ad or a recorded greeting and notices the audio isn't up to the standard of everything else. You don't need to produce content at scale: it's enough that your voice — or a voice — represents your company somewhere the client hears before they see you."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The listing names three places, and the example is walking through them in one week. First, the voicemail greeting: the client who calls after hours hears a clean voiceover instead of a recording made in the car. Second, an Instagram ad: the ad's text becomes audio with a polished voice, without the owner recording fifteen takes in the back room.",
+      "Third, the audio of a training video for the team: the procedure every new person has to learn stops depending on someone recording it well once. Three different pieces, the same point: the business sounds the way it wants to sound, not the way the phone sounded that day."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "ElevenLabs can be used <b>free, at $0, with 10,000 credits a month</b>. The first paid plan in its listing is <b>Starter: $5/month billed annually, or $6 if you pay month to month</b>.",
+      "The unit that rules here is the credit, and it's counted right in the free plan's own listing: 10,000 a month. As with the other credit-based tools on this list, what that number means in practice depends on how much audio you produce."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first is that counter: the free plan isn't “unlimited voice to try,” it's 10,000 credits a month. To record the greeting, an ad and test the training video, that's plenty; for constant audio production, that's the ceiling that pushes you to Starter, and it's worth knowing before you organize your pieces around the free plan.",
+      "The second is small in money but constant on this list: Starter's $5 is billed annually. Month to month, $6. One dollar of difference ruins nobody, but the headline price is, once again, the one with the annual commitment."
+    ]}
+  ],
+  official:"Official site · elevenlabs.io",
+  visit:"Visit"
+}},
+fathom: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 23 · Reuniones · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Fathom hace lo mismo que Otter — entra a tu reunión y te deja el acta sin que tomes una nota — pero su plan gratis no tiene el techo que limita al otro.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Fathom es un asistente de reuniones, el tercero de esta lista en su categoría, y su ficha lo presenta con una comparación directa en vez de con una descripción larga: si ya leíste la ficha de Otter, esta se entiende en una frase. Entra a Zoom, Meet o Teams y te deja el acta escrita sin que tomes una sola nota.",
+      "¿Para quién tiene sentido, entonces, si ya existe Otter? Para quien hace reuniones suficientes como para que el techo del plan gratis del otro se le quede corto. Fathom no se vende aquí por hacer algo distinto, sino por quitar — según su ficha — el límite que condiciona a su pariente más cercano."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Un negocio con la agenda llena de llamadas encadena tres reuniones en una mañana: un cliente, un proveedor y su propio equipo. Nadie está asignado a tomar notas en ninguna de las tres, porque Fathom entra a cada llamada de Zoom, Meet o Teams y se encarga del acta.",
+      "Al terminar la mañana, cada reunión ha dejado su papel: lo hablado y lo acordado, escrito. La diferencia práctica frente a hacerlo «a la antigua» no es sutil: la persona que antes salía de cada llamada a pasar notas a limpio simplemente no hace ese trabajo, y lo que se acordó a las diez sigue legible a las diez de la semana siguiente, no depende de la memoria de nadie."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Fathom se puede usar <b>gratis, a $0, y su ficha lo subraya: para siempre</b>. El plan de pago es <b>Premium: $20/mes, o $16/mes con pago anual</b>.",
+      "Son los únicos precios verificados que publicamos. Y la frase «para siempre» no es un adorno nuestro: es la formulación de la propia ficha para distinguir este plan gratis de los que funcionan como prueba."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La primera letra pequeña es, en realidad, la ausencia de la habitual: donde Otter pone un contador de 300 minutos al mes en su plan gratis, la ficha de Fathom dice que el suyo no tiene ese techo. Dicho con la cautela de este directorio: eso es lo que consta en su ficha verificada, y es el argumento completo de esta herramienta en la lista. Si tu volumen de reuniones es el problema, empieza por comprobar este plan gratis con tus llamadas reales.",
+      "La segunda sí es la de siempre: Premium cuesta $20 mes a mes y $16 pagando el año. El precio que se anuncia es el anual; el de tu factura depende de cómo pagues, como en casi todas las fichas de este directorio."
+    ]}
+  ],
+  official:"Web oficial · fathom.ai",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 23 · Meetings · Full article',
+  vlabel:"The verdict",
+  verdict:"Fathom does the same thing as Otter — it joins your meeting and leaves you the minutes without you taking a single note — but its free plan doesn't have the cap that limits the other one.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Fathom is a meeting assistant, the third in its category on this list, and its listing presents it with a direct comparison instead of a long description: if you've already read the Otter entry, this one takes a single sentence. It joins Zoom, Meet or Teams and leaves you written minutes without you taking a single note.",
+      "Who does it make sense for, then, if Otter already exists? Anyone who holds enough meetings for the other one's free-plan ceiling to fall short. Fathom isn't sold here for doing something different, but for removing — according to its listing — the limit that conditions its closest relative."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A business with a calendar full of calls chains three meetings in one morning: a client, a supplier and its own team. Nobody is assigned to take notes in any of the three, because Fathom joins each Zoom, Meet or Teams call and handles the minutes.",
+      "By the end of the morning, each meeting has left its document: what was said and what was agreed, in writing. The practical difference from doing it “the old way” isn't subtle: the person who used to leave every call to type up notes simply doesn't do that job, and what was agreed at ten is still readable at ten the following week — it doesn't depend on anyone's memory."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "Fathom can be used <b>free, at $0 — and its listing underlines it: forever</b>. The paid plan is <b>Premium: $20/month, or $16/month billed annually</b>.",
+      "Those are the only verified prices we publish. And the word “forever” isn't our decoration: it's the listing's own wording to distinguish this free plan from the ones that work as a trial."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The first bit of fine print is, in fact, the absence of the usual one: where Otter puts a 300-minutes-a-month counter on its free plan, Fathom's listing says its own doesn't have that cap. Put with this directory's usual caution: that is what its verified listing states, and it is this tool's whole argument on the list. If your meeting volume is the problem, start by testing this free plan against your real calls.",
+      "The second is the usual one: Premium costs $20 month to month and $16 paying for the year. The advertised price is the annual one; the one on your bill depends on how you pay, as in almost every entry in this directory."
+    ]}
+  ],
+  official:"Official site · fathom.ai",
+  visit:"Visit"
+}},
+heygen: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 24 · Vídeo · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Si tu negocio necesita vídeos con alguien hablando a cámara y nadie quiere salir en pantalla, HeyGen pone el presentador por ti.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "HeyGen hace vídeos con presentador sin presentador. Tal cual lo dice su ficha: escribes el guion, eliges un avatar y sale el vídeo hablando a cámara. No hay rodaje, no hay cámara y no hay que convencer a nadie del equipo para que salga en pantalla.",
+      "¿Para quién? Para el negocio que sabe que su web y sus redes necesitan vídeo — porque todo el mundo se lo dice — pero cuyo dueño se congela delante del móvil. Y también para quien repite el mismo mensaje una y otra vez: si el contenido cambia cada mes, volver a grabar es un coste; cambiar el texto, no."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Piensa en una empresa de servicios que quiere explicar en su web cómo trabaja: el cliente pide presupuesto, se hace la visita, se ejecuta el trabajo, se entrega. Grabar eso con el dueño lleva una tarde y tres intentos fallidos; con HeyGen se escribe un guion de un minuto, se elige el avatar y el vídeo queda publicado. El segundo uso que cita su ficha es igual de práctico: formar a un empleado nuevo con un vídeo de bienvenida que no depende de que el encargado tenga tiempo esa semana.",
+      "Y cuando cambia un precio, un horario o una condición, no hay que repetir la grabación: se edita la frase en el texto y se genera el vídeo otra vez. Para un negocio que actualiza su oferta cada temporada, esa es la diferencia entre tener el vídeo al día o tenerlo abandonado."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "Se puede empezar <b>gratis, con 3 vídeos al mes</b>. El plan de pago de su ficha es <b>Creator, a $29/mes</b>.",
+      "No hay más escalones publicados en la ficha, y no los inventamos: esos dos números — el gratis con su contador y el Creator — son toda la letra de precios que publicamos."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "El contador que manda aquí es el de vídeos al mes: tres en el plan gratis. No es un plan para publicar a diario; es un plan para comprobar si el formato te convence antes de pagar. Si tu idea es sacar un vídeo por semana, el gratis se te queda corto en el primer mes y Creator pasa a ser el suelo real.",
+      "Y una cosa de oficio, no de precio: un avatar no es tu cara. Para explicar un servicio o un procedimiento funciona de sobra; para pedir confianza en algo delicado, el vídeo del dueño de verdad sigue pesando más. HeyGen rinde donde el presentador es un medio, no el mensaje."
+    ]}
+  ],
+  official:"Web oficial · heygen.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 24 · Video · Full article',
+  vlabel:"The verdict",
+  verdict:"If your business needs videos with someone talking to camera and nobody wants to be on screen, HeyGen supplies the presenter for you.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "HeyGen makes presenter videos with no presenter. Just as its listing says: you write the script, pick an avatar, and out comes the video speaking to camera. No shoot, no camera, and nobody on the team has to be talked into appearing on screen.",
+      "Who is it for? The business that knows its website and socials need video — because everyone keeps saying so — but whose owner freezes in front of a phone. And also anyone who repeats the same message over and over: if the content changes every month, re-recording is a cost; editing the text isn't."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "Think of a services company that wants to explain on its website how it works: the client requests a quote, the visit happens, the job gets done, it's handed over. Filming that with the owner takes an afternoon and three failed takes; with HeyGen you write a one-minute script, pick the avatar, and the video is published. The second use its listing names is just as practical: training a new employee with a welcome video that doesn't depend on the manager having time that week.",
+      "And when a price, a schedule or a condition changes, there's no re-shoot: you edit the sentence in the text and generate the video again. For a business that updates its offer every season, that's the difference between a video that's current and one that's abandoned."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "You can start <b>free, with 3 videos a month</b>. The paid plan in its listing is <b>Creator, at $29/month</b>.",
+      "There are no more tiers published in the listing, and we don't invent them: those two numbers — the free plan with its counter and Creator — are all the pricing we publish."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The counter that rules here is videos per month: three on the free plan. It isn't a plan for publishing daily; it's a plan for checking whether the format convinces you before paying. If your idea is one video a week, the free plan runs out in the first month and Creator becomes the real floor.",
+      "And one thing about craft, not price: an avatar isn't your face. For explaining a service or a procedure it works fine; for asking for trust on something delicate, a video of the actual owner still carries more weight. HeyGen performs where the presenter is a medium, not the message."
+    ]}
+  ],
+  official:"Official site · heygen.com",
+  visit:"Visit"
+}},
+krisp: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 25 · Audio · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Krisp no promete nada espectacular: limpia el ruido de tus llamadas para que el cliente oiga tu voz, y no la obra de la esquina.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "La ficha de Krisp no empieza con una lista de funciones; empieza con una escena. Estás en el coche, entre dos trabajos, y entra la llamada del cliente que llevas tres días esperando. Al fondo: el tráfico, el aire acondicionado, la obra de la esquina. Krisp existe para esa escena: es la herramienta que limpia el audio de tus llamadas para que lo que llegue al otro lado sea tu voz.",
+      "¿Para quién? Para quien trabaja en movimiento — entre obras, en la calle, en un local con la nevera sonando al fondo — y atiende las llamadas donde le pillan, no desde una oficina silenciosa. Si todas tus llamadas salen de un despacho cerrado, probablemente no lo necesitas, y este artículo no va a fingir lo contrario."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "El ejemplo es el de la propia ficha, llevado hasta el final. Un técnico va de un servicio a otro y le entra la llamada del cliente con el que está a punto de cerrar un presupuesto. Sin nada de por medio, el cliente oye la calle antes que la cifra y le pide que repita el precio dos veces; la conversación pierde fuerza justo donde no debe. Con Krisp activado, esa misma llamada, desde el mismo coche, se entiende a la primera: el precio se dice una vez y se habla de fechas.",
+      "Lo mismo vale dentro del local: quien atiende el teléfono junto a una cocina, un taller o una tienda con clientes de fondo deja de competir con su propio ruido en cada llamada."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "El dato que hay que leer dos veces: Krisp <b>ya no tiene plan gratis permanente</b>. Lo que hay es una <b>prueba gratis de 7 días, sin tarjeta</b>. Así consta en su ficha y así quedó anotado en el registro de este directorio cuando cambió.",
+      "El plan de entrada es <b>Core: desde $8/mes con pago anual, o $16 pagando mes a mes</b>."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La letra pequeña aquí es el calendario: siete días de prueba pasan volando. La parte buena es que, al no pedir tarjeta, no hay cargo sorpresa al terminar; la parte mala es que tienes una semana para decidir, así que conviene probarlo en días de llamadas reales y ruidosas, no en la semana más tranquila del mes.",
+      "Y lo de siempre con el precio anual: los $8 son pagando el año entero por adelantado. Mes a mes, el mismo plan cuesta el doble. El número bonito lleva la condición escrita al lado, como en casi todas las fichas de esta lista."
+    ]}
+  ],
+  official:"Web oficial · krisp.ai",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 25 · Audio · Full article',
+  vlabel:"The verdict",
+  verdict:"Krisp promises nothing spectacular: it cleans the noise out of your calls so the client hears your voice, not the construction site on the corner.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Krisp's listing doesn't start with a feature list; it starts with a scene. You're in the car, between two jobs, and the call comes in from the client you've been waiting three days to hear from. In the background: traffic, the air conditioning, construction on the corner. Krisp exists for that scene: it's the tool that cleans up the audio of your calls so what reaches the other side is your voice.",
+      "Who is it for? Anyone who works on the move — between job sites, out on the street, in a shop with the fridge humming in the background — and takes calls wherever they happen to be, not from a quiet office. If all your calls come from a closed office, you probably don't need it, and this article won't pretend otherwise."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The example is the one from its own listing, played out to the end. A technician is driving from one job to the next when the call comes in from the client he's about to close a quote with. With nothing in between, the client hears the street before the figure and asks him to repeat the price twice; the conversation loses steam exactly where it shouldn't. With Krisp on, that same call, from the same car, is understood the first time: the price is said once and the talk moves on to dates.",
+      "The same goes inside the premises: whoever answers the phone next to a kitchen, a workshop or a shop full of customers stops competing with their own noise on every call."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "The detail worth reading twice: Krisp <b>no longer has a permanent free plan</b>. What it has is a <b>7-day free trial, no card required</b>. That's what its listing says, and it's what this directory's log noted when it changed.",
+      "The entry plan is <b>Core: from $8/month billed annually, or $16 paying month to month</b>."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The fine print here is the calendar: a seven-day trial flies by. The good part is that, since it doesn't ask for a card, there's no surprise charge at the end; the bad part is you have one week to decide, so it's worth testing it on days of real, noisy calls — not in the quietest week of the month.",
+      "And the usual thing about annual pricing: the $8 is for paying the whole year up front. Month to month, the same plan costs double. The pretty number has its condition written next to it, as in almost every listing here."
+    ]}
+  ],
+  official:"Official site · krisp.ai",
+  visit:"Visit"
+}},
+manychat: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 26 · Mensajería · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Manychat convierte los comentarios de tus redes en conversaciones que se contestan solas: el «comenta LINK» deja de depender de que estés mirando el móvil.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "La escena de su ficha lo explica mejor que cualquier definición: tu reel se viraliza, 400 comentarios preguntan «¿precio?» y nadie contesta. Ese es el trabajo que hace Manychat: responde en el DM por ti, con el disparador por palabra clave que convirtió el «comenta LINK y te lo envío» en toda una industria. Alguien escribe la palabra en un comentario o en un mensaje, y la automatización le contesta al instante con lo que hayas preparado: el enlace, el precio, el siguiente paso.",
+      "Es socio oficial de Meta y, además de Instagram y Messenger, funciona con TikTok, WhatsApp, Telegram, SMS y email. ¿Para quién? Para el negocio que capta clientes por redes y pierde ventas en el rato que pasa entre que el cliente pregunta y alguien del equipo responde. Si tus DM los contesta una persona en el momento, no te hace falta; si se quedan horas esperando, sí."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "Ejemplo concreto, el de cada semana en miles de cuentas: una tienda que vende por Instagram publica el reel de un producto nuevo y cierra el vídeo con «comenta LINK y te lo envío». Antes, eso significaba una persona pegada al teléfono copiando el enlace en cada DM, y los comentarios de la noche se contestaban a la mañana siguiente — o nunca. Con Manychat, la palabra clave dispara el mensaje con el enlace en segundos, también a las dos de la madrugada, y la conversación queda abierta en el DM para que el cliente siga preguntando.",
+      "El mismo mecanismo sirve sin vender nada: «comenta PRECIO» en el reel de un servicio, y el DM lleva la respuesta que el negocio haya dejado escrita. El trabajo deja de ser contestar uno a uno y pasa a ser escribir bien la respuesta una sola vez."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "El plan gratis existe y no pide tarjeta: <b>$0, con 25 contactos activos al mes, 4 automatizaciones en vivo y 2 canales (Instagram y Messenger)</b>.",
+      "La escalera de pago de su ficha: <b>Essential $17/mes ($14 con pago anual)</b>, con 250 contactos; <b>Pro $39/mes</b>; <b>Business $99/mes</b>; <b>Advanced $199/mes</b>. Y ojo con este sumando: el <b>complemento de IA cuesta $29/mes más</b> en Pro y Business."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "Dos avisos, y los dos están en su ficha. El primero: si te pasas del límite de contactos, las automatizaciones no se apagan — te cobran un pequeño extra por cada contacto activo adicional. Es bueno para no perder ventas en un mes viral y peligroso si nadie vigila el contador: el mes que mejor te va en redes puede ser el mes de la factura sorpresa.",
+      "El segundo es histórico y le importa a quien compare con precios que vio antes: las cuentas creadas antes del <b>2 de marzo de 2026</b> conservan el modelo viejo — gratis hasta 1.000 contactos y Pro desde $15/mes —; si entras hoy, ese precio ya no existe. Y si lo usas en WhatsApp, suma otra línea: Meta cobra aparte entre <b>$0,02 y $0,08 por conversación</b>."
+    ]}
+  ],
+  official:"Web oficial · manychat.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 26 · Messaging · Full article',
+  vlabel:"The verdict",
+  verdict:"Manychat turns your social comments into conversations that answer themselves: “comment LINK” stops depending on you staring at your phone.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "The scene in its listing explains it better than any definition: your reel goes viral, 400 comments ask “price?” and nobody answers. That's the job Manychat does: it replies in the DM for you, with the keyword trigger that turned “comment LINK and I'll send it” into a whole industry. Someone types the word in a comment or a message, and the automation answers instantly with whatever you've prepared: the link, the price, the next step.",
+      "It's an official Meta partner and, besides Instagram and Messenger, it also works with TikTok, WhatsApp, Telegram, SMS and email. Who is it for? The business that wins clients through social media and loses sales in the gap between the client asking and someone on the team replying. If a person answers your DMs on the spot, you don't need it; if they sit for hours, you do."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "A concrete example, the weekly one on thousands of accounts: a shop that sells on Instagram posts the reel of a new product and closes the video with “comment LINK and I'll send it to you.” Before, that meant one person glued to the phone pasting the link into every DM, and the overnight comments got answered the next morning — or never. With Manychat, the keyword fires the message with the link in seconds, at two in the morning too, and the conversation stays open in the DM for the client to keep asking.",
+      "The same mechanism works without selling anything: “comment PRICE” on a service reel, and the DM carries the answer the business wrote in advance. The job stops being answering one by one and becomes writing the answer well, once."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "The free plan exists and doesn't ask for a card: <b>$0, with 25 active contacts a month, 4 live automations and 2 channels (Instagram and Messenger)</b>.",
+      "The paid ladder in its listing: <b>Essential $17/month ($14 billed annually)</b>, with 250 contacts; <b>Pro $39/month</b>; <b>Business $99/month</b>; <b>Advanced $199/month</b>. And watch this add-on: the <b>AI add-on costs another $29/month</b> on Pro and Business."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "Two warnings, and both are in its listing. First: go over your contact limit and your automations don't switch off — you pay a small overage per extra active contact. That's good for not losing sales in a viral month, and dangerous if nobody watches the counter: your best month on social can be the month of the surprise bill.",
+      "The second is historical, and it matters to anyone comparing with prices they saw earlier: accounts created before <b>March 2, 2026</b> keep the old model — free up to 1,000 contacts and Pro from $15/month —; if you sign up today, that price no longer exists. And if you use it on WhatsApp, add another line: Meta charges <b>$0.02–$0.08 per conversation</b> on top."
+    ]}
+  ],
+  official:"Official site · manychat.com",
+  visit:"Visit"
+}},
+mailchimp: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 27 · Email marketing · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Mailchimp es el nombre que todo el mundo conoce en email marketing; la decisión no es si funciona, es si su manera de cobrar te conviene.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Mailchimp es la plataforma de correo de referencia para negocios: tu lista de contactos, tus campañas y tus automatizaciones viviendo en el mismo sitio. Su ficha en este directorio no se anda con descripciones bonitas — trae las cuentas ya hechas — y este artículo sigue ese mismo espíritu.",
+      "¿Para quién? Para el negocio que ya tiene una lista — clientes, suscriptores, gente que dejó su correo en la tienda o en la web — y quiere escribirles con regularidad sin pelearse con la herramienta. Si tu lista cabe en 250 contactos y escribes de vez en cuando, el plan gratis es un sitio razonable para empezar; el resto de este artículo explica dónde deja de serlo."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "El uso típico es aburrido y rentable: el negocio recoge correos en caja y en la web, y una vez al mes sale la campaña — el menú nuevo, la oferta de temporada, el horario especial. Eso, con el plan gratis, ya se puede hacer. Donde cambia la película es en el correo que no escribes tú cada vez: la bienvenida automática cuando alguien se suscribe. Esa automatización no está en el plan gratis — ni las hay, ni se pueden programar los envíos —; aparece en Essentials, con automatizaciones de hasta 4 pasos y pruebas A/B para comparar dos asuntos y quedarte con el que abre más gente.",
+      "Traducido: el gratis sirve para escribir a tu lista cuando te acuerdas; el primer plan de pago sirve para que la lista reciba correos aunque no te acuerdes. Esa diferencia, y no el logotipo, es lo que se paga."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "<b>Gratis $0</b>: 250 contactos, 500 envíos al mes (máximo 250 al día), 1 asiento, 1 audiencia, sin automatizaciones, sin programar envíos, con la marca de Mailchimp en los correos y soporte por email solo los primeros 30 días.",
+      "<b>Essentials $13/mes</b> (500 contactos, 5.000 envíos, 3 asientos, 3 audiencias, pruebas A/B, automatizaciones de 4 pasos). <b>Standard $20/mes</b> (500 contactos). <b>Premium desde $350/mes</b> (10.000 contactos). Hay prueba gratis de 14 días en Essentials y Standard, y un detalle que su ficha subraya: <b>sin descuento por pago anual</b> en los planes de marketing."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "La trampa que su ficha pone en negrita: Mailchimp cobra también por los contactos dados de baja. Si no archivas a quien ya no te lee, sigues pagando por esa persona igual. Mantener la lista limpia aquí no es una manía de orden: es dinero, cada mes.",
+      "Y al superar tu límite de contactos, el comportamiento depende del plan: en el gratis, el envío se pausa; en los de pago, te cobran el exceso. En ninguno de los dos casos lo avisa el precio grande de la portada, así que la cuenta hay que hacerla con la lista real — incluidos los que ya se fueron."
+    ]}
+  ],
+  official:"Web oficial · mailchimp.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 27 · Email marketing · Full article',
+  vlabel:"The verdict",
+  verdict:"Mailchimp is the name everyone knows in email marketing; the decision isn't whether it works, it's whether the way it charges suits you.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Mailchimp is the reference email platform for businesses: your contact list, your campaigns and your automations living in one place. Its entry in this directory doesn't bother with pretty descriptions — it brings the maths already done — and this article follows the same spirit.",
+      "Who is it for? The business that already has a list — clients, subscribers, people who left their email at the shop or on the website — and wants to write to them regularly without fighting the tool. If your list fits in 250 contacts and you write now and then, the free plan is a reasonable place to start; the rest of this article explains where it stops being one."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The typical use is boring and profitable: the business collects emails at the till and on the website, and once a month the campaign goes out — the new menu, the seasonal offer, the special hours. That much the free plan can do. Where the picture changes is the email you don't write yourself each time: the automatic welcome when someone subscribes. That automation isn't in the free plan — there are no automations at all, and sends can't be scheduled —; it shows up in Essentials, with automations of up to 4 steps and A/B testing to compare two subject lines and keep the one more people open.",
+      "Translated: the free plan is for writing to your list when you remember; the first paid plan is for your list getting emails even when you don't. That difference — not the logo — is what you're paying for."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "<b>Free $0</b>: 250 contacts, 500 sends a month (250 a day max), 1 seat, 1 audience, no automations, no scheduled sends, Mailchimp branding on the emails, and email support for the first 30 days only.",
+      "<b>Essentials $13/month</b> (500 contacts, 5,000 sends, 3 seats, 3 audiences, A/B testing, 4-step automations). <b>Standard $20/month</b> (500 contacts). <b>Premium from $350/month</b> (10,000 contacts). There's a 14-day free trial on Essentials and Standard, and one detail its listing underlines: <b>no annual prepay discount</b> on the marketing plans."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The trap its listing puts in bold: Mailchimp also charges you for unsubscribed contacts. If you don't archive the people who no longer read you, you keep paying for them anyway. Keeping the list clean here isn't tidiness for its own sake: it's money, every month.",
+      "And when you pass your contact limit, the behavior depends on the plan: on the free one, sending pauses; on the paid ones, you get billed for the overage. Neither case is announced by the big price on the homepage, so do the maths with your real list — including the people who already left."
+    ]}
+  ],
+  official:"Official site · mailchimp.com",
+  visit:"Visit"
+}},
+buffer: {
+es:{
+  back:"← Volver al índice",
+  kick:'<span class="dot"></span>Nº 28 · Redes sociales · Artículo completo',
+  vlabel:"El veredicto",
+  verdict:"Buffer programa tus redes para que no vivas pendiente de publicar; y su plan gratis, para un solo negocio, basta de verdad.",
+  sections:[
+    {h:"Qué es y <em>para quién</em>", ps:[
+      "Buffer es la herramienta de programar redes sociales: preparas las publicaciones de la semana en una sentada y salen solas, en cada red y a su hora. Su ficha abre con el veredicto ya dado — si llevas un solo negocio y tres cuentas sociales, el plan gratis te basta de verdad, y eso es raro — y este artículo se limita a desarrollar esa frase.",
+      "¿Para quién? Para el negocio que publica a saltos: tres posts el lunes y ninguno en dos semanas. Los canales que recoge su ficha dan para cubrir casi cualquier combinación: Instagram, Facebook, LinkedIn, TikTok, X, Threads, Bluesky, Mastodon, Pinterest, YouTube Shorts y Google Business Profile."
+    ]},
+    {h:"Cómo lo usa un <em>negocio pequeño</em>", ps:[
+      "El ejemplo cabe en una tarde de domingo. El dueño se sienta una hora y deja preparada la semana: la foto del producto del martes, el vídeo corto del jueves, el aviso del horario especial del sábado. Cada publicación queda en su cola, en Instagram, Facebook y TikTok, y durante la semana el negocio solo entra a responder comentarios — que es la parte que ninguna herramienta debería quitarte.",
+      "Con el plan gratis, esa rutina funciona tal cual: 3 canales, 10 publicaciones programadas por canal esperando su turno, 100 ideas guardadas para cuando no se te ocurre nada y la analítica de los últimos 30 días para ver qué funcionó. Para un negocio que publica tres o cuatro veces por semana, la cola no se llena nunca."
+    ]},
+    {h:"<em>Precios</em>", ps:[
+      "<b>Gratis $0 para siempre</b>: 3 canales, 10 publicaciones programadas por canal, 100 ideas guardadas, 1 usuario, asistente de IA incluido y analítica de 30 días.",
+      "Los planes de pago se cobran <b>por canal</b>: <b>Essentials $5/mes por canal</b> ($60 al año), con publicaciones ilimitadas y analítica avanzada con 2 años de historial; <b>Team $10/mes por canal</b> ($120 al año), con miembros ilimitados y flujos de aprobación. Hay prueba de 14 días."
+    ]},
+    {h:"La <em>letra pequeña</em>", ps:[
+      "El detalle que pica, literal de su ficha: al pasar a un plan de pago pagas por <b>todos</b> los canales conectados, incluidos los 3 que eran gratis. Así que la cuenta no es «$5 al mes»: con cinco canales en Essentials son $25 al mes, y con cinco marcas, la facturación por canal es donde la cosa empieza a doler. Antes de conectar cuentas por conectar, decide cuáles publican de verdad.",
+      "Y en el plan gratis, el techo práctico es la cola: 10 publicaciones programadas por canal. Si programas a diario, la cola se llena y toca esperar a que salgan las anteriores. Publicando unas pocas veces por semana — el ritmo normal de un negocio pequeño — ni se nota."
+    ]}
+  ],
+  official:"Web oficial · buffer.com",
+  visit:"Visitar"
+},
+en:{
+  back:"← Back to the index",
+  kick:'<span class="dot"></span>No. 28 · Social media · Full article',
+  vlabel:"The verdict",
+  verdict:"Buffer schedules your social media so you don't live waiting to post; and its free plan, for a single business, is genuinely enough.",
+  sections:[
+    {h:"What it is, and <em>who it's for</em>", ps:[
+      "Buffer is the social media scheduling tool: you prepare the week's posts in one sitting and they go out on their own, on each network and at their time. Its listing opens with the verdict already delivered — if you run one business and three social accounts, the free plan is genuinely enough, and that's rare — and this article simply expands on that sentence.",
+      "Who is it for? The business that posts in bursts: three posts on Monday and none for two weeks. The channels its listing names cover almost any combination: Instagram, Facebook, LinkedIn, TikTok, X, Threads, Bluesky, Mastodon, Pinterest, YouTube Shorts and Google Business Profile."
+    ]},
+    {h:"How a <em>small business</em> uses it", ps:[
+      "The example fits in a Sunday afternoon. The owner sits down for an hour and gets the week ready: Tuesday's product photo, Thursday's short video, the notice about Saturday's special hours. Each post sits in its queue, on Instagram, Facebook and TikTok, and during the week the business only goes in to answer comments — the part no tool should take away from you.",
+      "On the free plan, that routine works as-is: 3 channels, 10 scheduled posts per channel waiting their turn, 100 saved ideas for when nothing comes to mind, and the last 30 days of analytics to see what worked. For a business posting three or four times a week, the queue never fills up."
+    ]},
+    {h:"<em>Pricing</em>", ps:[
+      "<b>Free $0 forever</b>: 3 channels, 10 scheduled posts per channel, 100 saved ideas, 1 user, AI Assistant included and 30-day analytics.",
+      "The paid plans are billed <b>per channel</b>: <b>Essentials $5/month per channel</b> ($60 a year), with unlimited scheduled posts and advanced analytics with 2 years of history; <b>Team $10/month per channel</b> ($120 a year), with unlimited members and approval workflows. There's a 14-day trial."
+    ]},
+    {h:"The <em>fine print</em>", ps:[
+      "The detail that bites, straight from its listing: once you move to a paid plan you pay for <b>all</b> your connected channels, including the 3 that were free. So the maths isn't “$5 a month”: five channels on Essentials is $25 a month, and with five brands, per-channel billing is where it starts to hurt. Before connecting accounts just because, decide which ones actually post.",
+      "And on the free plan, the practical ceiling is the queue: 10 scheduled posts per channel. If you schedule daily, the queue fills and you wait for earlier posts to go out. Posting a few times a week — the normal rhythm of a small business — you never even notice it."
+    ]}
+  ],
+  official:"Official site · buffer.com",
+  visit:"Visit"
+}}
+};
 const articleEl = $("#articulo");
 const indexParts = [document.querySelector(".hero"), document.querySelector(".finder"), $("#directorio"), $("#agente"), $("#invitacion")];
-function renderArticle(){
-  const a = ART_MUSE[lang];
-  $("#art-content").innerHTML = `
-    <a class="art-back" href="#" id="art-back">${esc(a.back)}</a>
-    <p class="mono art-kick">${a.kick}</p>
-    <h2 class="art-title" id="art-title">Muse</h2>
-    <p class="art-verdict"><span class="vlabel">${esc(a.vlabel)}</span>${esc(a.verdict)}</p>
-    <div class="art-body">${a.sections.map(s=>`<h3>${s.h}</h3>${s.ps.map(p=>`<p>${p}</p>`).join("")}`).join("")}</div>
-    <div class="art-foot">
+/* Vista única de artículo: se alimenta del mapa ARTICLES y de la ficha
+   de la herramienta (nombre, categoría, enlace oficial). Sin duplicar
+   la vista por herramienta; Muse conserva su pie con el código. */
+let currentArticle = "muse";
+const toolBySlug = slug => TOOLS.find(t=>ARTICLE_SLUGS[t.name]===slug);
+function renderArticle(slug){
+  if(slug && ARTICLES[slug]) currentArticle = slug;
+  const a = ARTICLES[currentArticle][lang];
+  const tool = toolBySlug(currentArticle);
+  if(!a || !tool) return;
+  const foot = currentArticle==="muse"
+    ? `<div class="art-foot">
       <div>
         <div class="code-label mono">${esc(a.codeLabel)}</div>
         <div class="art-code">QY02JG</div>
       </div>
       <a class="btn btn-primary" href="https://muse.ai/join" target="_blank" rel="noopener">${esc(a.visit)} Muse ${arrow}</a>
+    </div>`
+    : `<div class="art-foot">
+      <div>
+        <div class="code-label mono">${esc(a.official||"")}</div>
+        <div class="art-code" style="font-size:clamp(1.4rem,4vw,2.2rem);color:var(--fg)">${esc(tool.name)}</div>
+      </div>
+      <a class="btn btn-primary" href="${esc(tool.url)}" target="_blank" rel="noopener">${esc(a.visit)} ${esc(tool.name)} ${arrow}</a>
     </div>`;
+  $("#art-content").innerHTML = `
+    <a class="art-back" href="#" id="art-back">${esc(a.back)}</a>
+    <p class="mono art-kick">${a.kick}</p>
+    <h2 class="art-title" id="art-title">${esc(tool.name)}</h2>
+    <p class="art-verdict"><span class="vlabel">${esc(a.vlabel)}</span>${esc(a.verdict)}</p>
+    <div class="art-body">${a.sections.map(s=>`<h3>${s.h}</h3>${s.ps.map(p=>`<p>${p}</p>`).join("")}`).join("")}</div>
+    ${foot}`;
   $("#art-back").addEventListener("click",e=>{
     e.preventDefault();
     closeArticle();
     history.pushState(null,"",location.pathname+location.search);
   });
 }
-function openArticle(){
+function openArticle(slug){
+  if(slug && slug!==currentArticle) renderArticle(slug);
   indexParts.forEach(el=>{ if(el) el.hidden = true; });
   articleEl.hidden = false;
   window.scrollTo(0,0);
@@ -737,11 +2200,13 @@ function openArticle(){
 function closeArticle(){
   articleEl.hidden = true;
   indexParts.forEach(el=>{ if(el) el.hidden = false; });
-  const target = items[1];
+  const tool = toolBySlug(currentArticle);
+  const target = tool ? items[TOOLS.indexOf(tool)] : null;
   if(target) target.scrollIntoView({block:"start"});
 }
 function route(){
-  if(location.hash==="#articulo-muse"){ if(articleEl.hidden) openArticle(); }
+  const m = location.hash.match(/^#articulo-([a-z]+)$/);
+  if(m && ARTICLES[m[1]]){ if(articleEl.hidden || currentArticle!==m[1]) openArticle(m[1]); }
   else if(!articleEl.hidden){ articleEl.hidden = true; indexParts.forEach(el=>{ if(el) el.hidden = false; }); }
 }
 addEventListener("hashchange",route);
