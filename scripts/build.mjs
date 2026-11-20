@@ -252,6 +252,21 @@ ${foot}
   let home = replaceOnce(html, '</head>', `${headExtra}\n</head>`)
   home = replaceOnce(home, '<div class="dir" id="dir"></div>', `<div class="dir" id="dir">${tools.map((t) => entry(t, 'es')).join('')}</div>`)
   home = replaceOnce(home, '<span id="foot-2">', '<a href="/en" hreflang="en">English</a>\n    <span id="foot-2">')
+  // The numbers in index.html are typed by hand and go stale between reviews;
+  // the plain HTML (what search engines and the first paint see) uses the data.
+  // These are soft replacements: if the markup changes, the page still ships.
+  const categories = new Set(TOOLS.map((t) => t.cat)).size
+  const results = (n) => `${n} ${n === 1 ? UI.es.result : UI.es.results}`
+  home = home
+    .replace(/(<strong id="stat-total">)[^<]*(<\/strong>)/, `$1${TOOLS.length}$2`)
+    .replace(/(<strong>)[^<]*(<\/strong><span id="stat-lbl-cats">)/, `$1${categories}$2`)
+    .replace(/(<span[^>]*id="count"[^>]*>)[^<]*(<\/span>)/, (_, a, b) => `${a}${results(TOOLS.length)}${b}`)
+    // The "nothing found" text is filled in by the page script only when a
+    // search comes up empty; left in the HTML, readers without the script see
+    // it under a full list.
+    .replace(/(<p id="empty-title">)[^<]*(<\/p>)/, '$1$2')
+    .replace(/(<span id="empty-text">)[^<]*(<\/span>)/, '$1$2')
+    .replace(/(<button type="button" id="reset">)[^<]*(<\/button>)/, '$1$2')
   if (!home.includes('#articulo-${slug}')) throw new Error('article links changed')
   home = home.replaceAll('#articulo-${slug}', '${lang==="en"?"/en/tools/":"/herramientas/"}${slug}')
 
@@ -264,15 +279,19 @@ ${foot}
     files.set(`en/tools/${tool.slug}.html`, toolPage(tool, 'en'))
   }
 
-  const urls = [
-    { loc: '/', lastmod },
-    { loc: '/en', lastmod },
-    ...withPage.flatMap((t) => [{ loc: toolPath('es', t.slug) }, { loc: toolPath('en', t.slug) }]),
-  ]
+  // Every page lists its Spanish and English versions (hreflang) and the date of
+  // the last review, which the daily review writes into the source sitemap.
+  const pairs = [['/', '/en'], ...withPage.map((t) => [toolPath('es', t.slug), toolPath('en', t.slug)])]
+  const links = (es, en) =>
+    [['es', es], ['en', en], ['x-default', es]]
+      .map(([code, loc]) => `\n    <xhtml:link rel="alternate" hreflang="${code}" href="${SITE}${loc}"/>`)
+      .join('')
+  const url = (loc, es, en) =>
+    `  <url>\n    <loc>${SITE}${loc}</loc>\n    <lastmod>${lastmod}</lastmod>${links(es, en)}\n  </url>`
   files.set(
     'sitemap.xml',
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
-      .map(({ loc, lastmod: date }) => `  <url>\n    <loc>${SITE}${loc}</loc>${date ? `\n    <lastmod>${date}</lastmod>` : ''}\n  </url>`)
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${pairs
+      .flatMap(([es, en]) => [url(es, es, en), url(en, es, en)])
       .join('\n')}\n</urlset>\n`,
   )
   return files
@@ -280,7 +299,7 @@ ${foot}
 
 const html = await readFile(join(root, 'index.html'), 'utf8')
 const sourceSitemap = await readFile(join(root, 'sitemap.xml'), 'utf8').catch(() => '')
-const lastmod = sourceSitemap.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1]
+const lastmod = sourceSitemap.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1] || new Date().toISOString().slice(0, 10)
 
 await rm(dist, { recursive: true, force: true })
 await mkdir(dist, { recursive: true })
