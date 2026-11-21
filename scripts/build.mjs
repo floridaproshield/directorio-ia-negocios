@@ -12,6 +12,9 @@ import vm from 'node:vm'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = join(root, 'dist')
 const SITE = 'https://ia.sunrisewebs.com'
+// Same Search Console tag as sunrisewebs.com and loyalty.sunrisewebs.com (one Google account),
+// so the subdomain can be verified in Search Console with one click.
+const GSC = '<meta name="google-site-verification" content="rawOA2FAvOkRrYzanEJDRgmK5saVCoPcpU2o_bVVU54">'
 const SKIP = new Set(['.git', '.github', '.vercel', 'dist', 'scripts', 'node_modules', 'vercel.json', 'README.md', 'index.html', 'sitemap.xml'])
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
@@ -107,6 +110,7 @@ function build(html, data, lastmod) {
 <html lang="${lang}">
 <head>
 <meta charset="utf-8">
+${GSC}
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
@@ -244,6 +248,7 @@ ${foot}
   const legacyHash = `<script>(function(m){if(m)location.replace('/herramientas/'+m[1])})(location.hash.match(/^#articulo-([a-z]+)$/))</script>`
   const headExtra = [
     legacyHash,
+    GSC,
     `<link rel="canonical" href="${SITE}/">`,
     alternates('/', '/en'),
     social('es', HOME_ES.title, HOME_ES.description, `${SITE}/`),
