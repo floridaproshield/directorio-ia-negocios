@@ -98,7 +98,7 @@ function build(html, data, lastmod) {
     `<link rel="alternate" hreflang="es" href="${SITE}${es}">\n<link rel="alternate" hreflang="en" href="${SITE}${en}">\n<link rel="alternate" hreflang="x-default" href="${SITE}${es}">`
 
   const social = (lang, title, description, url) =>
-    `<meta property="og:type" content="website">\n<meta property="og:site_name" content="${COPY[lang].site}">\n<meta property="og:title" content="${esc(title)}">\n<meta property="og:description" content="${esc(description)}">\n<meta property="og:url" content="${url}">\n<meta name="twitter:card" content="summary">`
+    `<meta property="og:type" content="website">\n<meta property="og:site_name" content="${COPY[lang].site}">\n<meta property="og:title" content="${esc(title)}">\n<meta property="og:description" content="${esc(description)}">\n<meta property="og:url" content="${url}">\n<meta property="og:image" content="${SITE}/og.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">`
 
   const page = ({ lang, path, esPath, enPath, title, description, ld, body }) => {
     const u = UI[lang]
@@ -230,19 +230,23 @@ ${foot}
     esPath: '/',
     enPath: '/en',
     title: 'AI tools for small businesses, reviewed daily | AI Tools Directory',
-    description: UI.en.meta,
+    description: `${TOOLS.length} AI tools for small businesses, by category, with clear pricing and an article on each one. Checked every day.`,
     ld: [itemList('en')],
     body: `<section class="wrap"><div class="index-head"><h1>AI tools for <em>small businesses</em></h1><p>${UI.en.lede}</p></div><div class="dir">${tools.map((t) => entry(t, 'en')).join('')}</div></section>`,
   })
 
   // The Spanish home keeps its interactive page; it gains the same content as
   // plain HTML, real links to each article, and the tags it was missing.
+  const HOME_ES = {
+    title: 'Herramientas de IA para pequeños negocios: directorio con precios',
+    description: `${TOOLS.length} herramientas de IA para negocios pequeños, por categoría, con precio claro y un artículo de cada una. Revisado cada día.`,
+  }
   const legacyHash = `<script>(function(m){if(m)location.replace('/herramientas/'+m[1])})(location.hash.match(/^#articulo-([a-z]+)$/))</script>`
   const headExtra = [
     legacyHash,
     `<link rel="canonical" href="${SITE}/">`,
     alternates('/', '/en'),
-    social('es', UI.es.title, UI.es.meta, `${SITE}/`),
+    social('es', HOME_ES.title, HOME_ES.description, `${SITE}/`),
     json(itemList('es')),
   ].join('\n')
   const replaceOnce = (text, from, to) => {
@@ -250,6 +254,13 @@ ${foot}
     return text.replace(from, () => to)
   }
   let home = replaceOnce(html, '</head>', `${headExtra}\n</head>`)
+  // The page's own title and description are short and generic; search results
+  // get a fuller version. Soft replacements: the daily review owns index.html.
+  home = home
+    .replace(/<title>[^<]*<\/title>/, `<title>${esc(HOME_ES.title)}</title>`)
+    .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(HOME_ES.description)}">`)
+    // The page script sets the title again on load from its own copy; keep them the same.
+    .replace(/(es:\{title:)"[^"]*",meta:"[^"]*"/, (_, a) => `${a}${JSON.stringify(HOME_ES.title)},meta:${JSON.stringify(HOME_ES.description)}`)
   home = replaceOnce(home, '<div class="dir" id="dir"></div>', `<div class="dir" id="dir">${tools.map((t) => entry(t, 'es')).join('')}</div>`)
   home = replaceOnce(home, '<span id="foot-2">', '<a href="/en" hreflang="en">English</a>\n    <span id="foot-2">')
   // The numbers in index.html are typed by hand and go stale between reviews;
